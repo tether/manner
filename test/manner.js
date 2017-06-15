@@ -75,6 +75,27 @@ test('should stream returned string data', assert => {
     }))
 })
 
+test('should stream returned stream data', assert => {
+  assert.plan(1)
+  const api = service({
+    'get': (params) => {
+      const result = new Stream
+      result._read = function () {}
+      setTimeout(() => {
+        result.push('hello ')
+        setTimeout(() => {
+          result.push('world')
+          result.push(null)
+        }, 1000)
+      }, 1000)
+    }
+  })
+  api(request('GET'))
+    .pipe(concat(data => {
+      assert.deepEqual(data.toString(), 'hello world')
+    }))
+})
+
 
 /**
  * Simulate HTTP request.
