@@ -1,0 +1,27 @@
+
+{
+  "name": "manner",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tether/manner.git"
+  },
+  "keywords": [
+    "tether"
+  ],
+  "author": "Petrofeed Inc",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tether/manner/issues"
+  },
+  "homepage": "https://github.com/tether/manner#readme",
+  "devDependencies": {
+    "tape": "*"
+  }
+}
+  
