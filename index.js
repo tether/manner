@@ -16,21 +16,33 @@ const Readable = require('readable-stream').Readable
 
 module.exports = function (methods) {
   return (req) => {
-    const stream = Readable({
+    const readable = Readable({
       objectMode: true
     })
-    stream._read = () => {}
+    readable._read = () => {}
     const type = req.method.toLowerCase()
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
     collect(req, buffer => {
       const data = buffer.length ? parse(buffer, req) : null
-      const result = methods[type](params, data)
-      stream.push(result)
-      stream.push(null)
+      stream(methods[type](params, data), readable)
     })
-    return stream
+    return readable
   }
+}
+
+
+/**
+ *
+ */
+
+function stream (chunk, readable) {
+  if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
+
+  }
+
+  readable.push(chunk)
+  readable.push(null)
 }
 
 
