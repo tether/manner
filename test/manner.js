@@ -31,12 +31,15 @@ test('Method params is always an object', assert => {
 
 
 test('get data from POST incoming message', assert => {
-  assert.plan(1)
+  assert.plan(2)
   const message = {
     foo: 'bar'
   }
   const api = service({
     'post': (params, data) => {
+      assert.deepEqual(params, {
+        label: 'hello'
+      })
       assert.deepEqual(data, message)
     }
   })
