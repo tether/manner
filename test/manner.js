@@ -19,7 +19,7 @@ test('get params from GET incoming message', assert => {
   api(request('GET', 'label=hello'))
 })
 
-test('GET method should return empty object if no params has been specified', assert => {
+test('Method params is always an object', assert => {
   assert.plan(1)
   const api = service({
     'get': (params) => {
