@@ -16,7 +16,7 @@ const query = require('querystring').parse
 module.exports = function (methods) {
   return (req) => {
     const type = req.method.toLowerCase()
-    const params = query(url(req.url).query)
+    const params = query(url(req.url).query) || {}
     collect(req, buffer => {
       const data = buffer.length ? parse(buffer, req) : null
       methods[type](params, data)

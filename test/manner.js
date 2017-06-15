@@ -56,7 +56,7 @@ function request (method, params, data) {
   const req = new Stream
   req._read = function () {}
   req.method = method
-  req.url = '?' + params
+  req.url = params ? '?' + params : ''
   req.push(JSON.stringify(data))
   req.push(null)
   return req
