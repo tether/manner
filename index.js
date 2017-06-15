@@ -56,10 +56,6 @@ function stream (chunk, readable) {
       readable.push(null)
     }
   }
-  // if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
-  //
-  // }
-
 }
 
 
