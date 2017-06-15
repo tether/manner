@@ -33,26 +33,31 @@ module.exports = function (methods) {
 
 
 /**
+ * Transform passed value into a stream.
  *
+ * @param {Any} value
+ * @param {ReadableStream} readable
+ * @return {Stream}
+ * @api privater
  */
 
-function stream (chunk, readable) {
-  if (chunk && typeof chunk.pipe === 'function') {
-    if(chunk.readable) {
-      chunk.on('data', buf => readable.push(buf))
-      chunk.on('end', () => readable.push(null))
+function stream (value, readable) {
+  if (value && typeof value.pipe === 'function') {
+    if(value.readable) {
+      value.on('data', buf => readable.push(buf))
+      value.on('end', () => readable.push(null))
     } else {
       // throw new Error('Returned stream should be readable or duplex.')
       readable.push(null)
     }
   } else {
-    if(typeof chunk === 'object' && typeof chunk.then === 'function') {
-      chunk.then(reason => {
+    if(typeof value === 'object' && typeof value.then === 'function') {
+      value.then(reason => {
         readable.push(reason)
         readable.push(null)
       })
     } else {
-      readable.push(chunk)
+      readable.push(value)
       readable.push(null)
     }
   }
