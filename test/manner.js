@@ -5,8 +5,8 @@
 const test = require('tape')
 const service = require('..')
 const concat = require('concat-stream')
-const Stream = require('stream').Readable
-
+const Readable = require('stream').Readable
+const Writable = require('stream').Writable
 
 test('get params from GET incoming message', assert => {
   assert.plan(1)
@@ -79,15 +79,15 @@ test('should stream returned stream data', assert => {
   assert.plan(1)
   const api = service({
     'get': (params) => {
-      const result = new Stream
+      const result = new Readable
       result._read = function () {}
       setTimeout(() => {
         result.push('hello ')
         setTimeout(() => {
           result.push('world')
           result.push(null)
-        }, 1000)
-      }, 1000)
+        }, 10)
+      }, 10)
       return result
     }
   })
@@ -97,6 +97,28 @@ test('should stream returned stream data', assert => {
     }))
 })
 
+
+// test('should not stream returned writable stream data', assert => {
+//   assert.plan(1)
+//   const api = service({
+//     'get': (params) => {
+//       const result = new Writable
+//       result._write = function () {}
+//       setTimeout(() => {
+//         result.push('hello ')
+//         setTimeout(() => {
+//           result.push('world')
+//           result.push(null)
+//         }, 10)
+//       }, 10)
+//       return result
+//     }
+//   })
+//   api(request('GET'))
+//     .pipe(concat(data => {
+//       assert.deepEqual(data.toString(), 'hello world')
+//     }))
+// })
 
 /**
  * Simulate HTTP request.
@@ -108,7 +130,7 @@ test('should stream returned stream data', assert => {
  */
 
 function request (method, params, data) {
-  const req = new Stream
+  const req = new Readable
   req._read = function () {}
   req.method = method
   req.url = params ? '?' + params : ''

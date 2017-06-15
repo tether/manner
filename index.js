@@ -38,9 +38,13 @@ module.exports = function (methods) {
 
 function stream (chunk, readable) {
   if (chunk && typeof chunk.pipe === 'function') {
-    // should we check it is readable?
-    chunk.on('data', buf => readable.push(buf))
-    chunk.on('end', () => readable.push(null))
+    if(chunk.readable) {
+      chunk.on('data', buf => readable.push(buf))
+      chunk.on('end', () => readable.push(null))
+    } else {
+      // throw new Error('Returned stream should be readable or duplex.')
+      readable.push(null)
+    }
   } else {
     readable.push(chunk)
     readable.push(null)
