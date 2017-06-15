@@ -37,12 +37,18 @@ module.exports = function (methods) {
  */
 
 function stream (chunk, readable) {
-  if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
-
+  if (chunk && typeof chunk.pipe === 'function') {
+    // should we check it is readable?
+    chunk.on('data', buf => readable.push(buf))
+    chunk.on('end', () => readable.push(null))
+  } else {
+    readable.push(chunk)
+    readable.push(null)
   }
+  // if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
+  //
+  // }
 
-  readable.push(chunk)
-  readable.push(null)
 }
 
 

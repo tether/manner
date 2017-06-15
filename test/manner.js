@@ -88,6 +88,7 @@ test('should stream returned stream data', assert => {
           result.push(null)
         }, 1000)
       }, 1000)
+      return result
     }
   })
   api(request('GET'))
