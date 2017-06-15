@@ -46,8 +46,15 @@ function stream (chunk, readable) {
       readable.push(null)
     }
   } else {
-    readable.push(chunk)
-    readable.push(null)
+    if(typeof chunk === 'object' && typeof chunk.then === 'function') {
+      chunk.then(reason => {
+        readable.push(reason)
+        readable.push(null)
+      })
+    } else {
+      readable.push(chunk)
+      readable.push(null)
+    }
   }
   // if (Buffer.isBuffer(chunk) || typeof chunk === 'string') {
   //

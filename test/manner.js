@@ -105,10 +105,10 @@ test('should stream returned stream data', assert => {
 //       const result = new Writable
 //       result._write = function () {}
 //       setTimeout(() => {
-//         result.push('hello ')
+//         result.write('hello ')
 //         setTimeout(() => {
-//           result.push('world')
-//           result.push(null)
+//           result.write('world')
+//           //result.write(null)
 //         }, 10)
 //       }, 10)
 //       return result
@@ -119,6 +119,24 @@ test('should stream returned stream data', assert => {
 //       assert.deepEqual(data.toString(), 'hello world')
 //     }))
 // })
+
+
+
+test('should stream returned promise data', assert => {
+  assert.plan(1)
+  const api = service({
+    'get': (params) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve('hello world'), 10)
+      })
+    }
+  })
+  api(request('GET'))
+    .pipe(concat(data => {
+      assert.deepEqual(data.toString(), 'hello world')
+    }))
+})
+
 
 /**
  * Simulate HTTP request.
