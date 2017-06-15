@@ -20,6 +20,10 @@
   },
   "homepage": "https://github.com/tether/manner#readme",
   "devDependencies": {
+    "concat-stream": "^1.6.0",
     "tape": "*"
+  },
+  "dependencies": {
+    "readable-stream": "^2.2.11"
   }
 }

@@ -4,6 +4,7 @@
 
 const test = require('tape')
 const service = require('..')
+const concat = require('concat-stream')
 const Stream = require('stream').Readable
 
 
@@ -45,6 +46,23 @@ test('get data from POST incoming message', assert => {
   })
   api(request('POST', 'label=hello', message))
 })
+
+
+test('should stream returned object data', assert => {
+  assert.plan(1)
+  const api = service({
+    'get': (params) => ({
+      foo: 'bar'
+    })
+  })
+  api(request('GET'))
+    .pipe(concat(data => {
+      assert.deepEqual(data[0], {
+        foo: 'bar'
+      })
+    }))
+})
+
 
 /**
  * Simulate HTTP request.
