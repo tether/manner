@@ -1,7 +1,7 @@
 
 # Manner
 
-[![Build Status](https://travis-ci.org/petrofeed/manner.svg?branch=master)](https://travis-ci.org/petrofeed/manner)
+[![Build Status](https://travis-ci.org/tether/manner.svg?branch=master)](https://travis-ci.org/tether/manner)
 [![NPM](https://img.shields.io/npm/v/manner.svg)](https://www.npmjs.com/package/manner)
 [![Downloads](https://img.shields.io/npm/dm/manner.svg)](http://npm-stat.com/charts.html?package=manner)
 [![guidelines](https://tether.github.io/contribution-guide/badge-guidelines.svg)](https://github.com/tether/contribution-guide)
