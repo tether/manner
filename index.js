@@ -106,5 +106,23 @@ function collect (req, cb) {
  */
 
 function parse (buffer, req) {
-  return JSON.parse(buffer.toString())
+  return decode(req.headers['content-type'], buffer.toString())
+}
+
+
+/**
+ * Decode data using request content type.
+ *
+ * @param {String} type
+ * @param {String} encoded
+ * @return {Object}
+ * @api private
+ */
+
+function decode (type, encoded) {
+  if (type === 'application/x-www-form-urlencoded') {
+      return query(encoded)
+  } else {
+    // we should transform the data for any type
+  }
 }
