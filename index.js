@@ -6,7 +6,6 @@ const url = require('url').parse
 const query = require('querystring').parse
 const Readable = require('readable-stream').Readable
 const content = require('request-content')
-const contentType = require('content-type').parse
 
 /**
  * This is a simple description.
@@ -25,17 +24,10 @@ module.exports = function (methods) {
     const cb = methods[type]
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
-
     content(req, data => {
       if(cb) stream(cb(params, data), readable)
       else status(res, 501)
     })
-    // collect(req, buffer => {
-    //   const data = buffer.length ? parse(buffer, req) : null
-    //   if(cb) stream(cb(params, data), readable)
-    //   else status(res, 501)
-    // })
-
     return readable
   }
 }
@@ -84,52 +76,5 @@ function stream (value, readable) {
       readable.push(value)
       readable.push(null)
     }
-  }
-}
-
-
-/**
- * Collect HTTP incoming buffers.
- *
- * @param {HttpIncomingMessage} req
- * @param {Function} cb
- * @api private
- */
-
-function collect (req, cb) {
-  let list = []
-  req.on('data', (chunk) => list.push(chunk))
-  req.on('end', () => cb(Buffer.concat(list)))
-}
-
-
-/**
- * Parse request buffer according its encoded format.
- *
- * @param {Buffer} buffer
- * @param {HttpIncomingMessage} req
- * @return {Object}
- * @api private
- */
-
-function parse (buffer, req) {
-  return decode(contentType(req).type, buffer.toString())
-}
-
-
-/**
- * Decode data using request content type.
- *
- * @param {String} type
- * @param {String} encoded
- * @return {Object}
- * @api private
- */
-
-function decode (type, encoded) {
-  if (type === 'application/x-www-form-urlencoded') {
-      return query(encoded)
-  } else {
-    // we should transform the data for any type
   }
 }

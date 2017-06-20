@@ -27,7 +27,6 @@
     "tape": "*"
   },
   "dependencies": {
-    "content-type": "^1.0.2",
     "readable-stream": "^2.2.11",
     "request-content": "^1.0.1"
   }
