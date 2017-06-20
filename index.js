@@ -5,6 +5,7 @@
 const url = require('url').parse
 const query = require('querystring').parse
 const Readable = require('readable-stream').Readable
+const content = require('request-content')
 const contentType = require('content-type').parse
 
 /**
@@ -24,11 +25,17 @@ module.exports = function (methods) {
     const cb = methods[type]
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
-    collect(req, buffer => {
-      const data = buffer.length ? parse(buffer, req) : null
+
+    content(req, data => {
       if(cb) stream(cb(params, data), readable)
       else status(res, 501)
     })
+    // collect(req, buffer => {
+    //   const data = buffer.length ? parse(buffer, req) : null
+    //   if(cb) stream(cb(params, data), readable)
+    //   else status(res, 501)
+    // })
+
     return readable
   }
 }
