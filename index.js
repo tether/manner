@@ -5,7 +5,7 @@
 const url = require('url').parse
 const query = require('querystring').parse
 const Readable = require('readable-stream').Readable
-
+const contentType = require('content-type').parse
 
 /**
  * This is a simple description.
@@ -106,7 +106,7 @@ function collect (req, cb) {
  */
 
 function parse (buffer, req) {
-  return decode(req.headers['content-type'], buffer.toString())
+  return decode(contentType(req).type, buffer.toString())
 }
 
 
