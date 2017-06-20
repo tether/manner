@@ -54,7 +54,7 @@ function status (response, code) {
  * @param {Any} value
  * @param {ReadableStream} readable
  * @return {Stream}
- * @api privater
+ * @api private
  */
 
 function stream (value, readable) {
