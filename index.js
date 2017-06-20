@@ -15,20 +15,37 @@ const Readable = require('readable-stream').Readable
  */
 
 module.exports = function (methods) {
-  return (req) => {
+  return (req, res) => {
     const readable = Readable({
       objectMode: true
     })
     readable._read = () => {}
     const type = req.method.toLowerCase()
+    const cb = methods[type]
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
     collect(req, buffer => {
       const data = buffer.length ? parse(buffer, req) : null
-      stream(methods[type](params, data), readable)
+      if(cb) stream(cb(params, data), readable)
+      else status(res, 501)
     })
     return readable
   }
+}
+
+
+/**
+ * Genereate response status code and close connection.
+ *
+ * @param {ServerResponse} response
+ * @param {Number} code
+ * @api private
+ */
+
+function status (response, code) {
+  response.statusCode = code
+  response.statusMessage = 'Not Implemented'
+  response.end()
 }
 
 
