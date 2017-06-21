@@ -6,7 +6,11 @@
 [![Downloads](https://img.shields.io/npm/dm/manner.svg)](http://npm-stat.com/charts.html?package=manner)
 [![guidelines](https://tether.github.io/contribution-guide/badge-guidelines.svg)](https://github.com/tether/contribution-guide)
 
-Create HTTP request handler in a nice and easy way. Manner allows you to define any kind of HTTP methods and handle returned buffers, string, objects, streams or even promises.
+This module makes easy to create HTTP methods (GET, POST, OPTIONS, HEAD, DELETE, etc) agnostic to any kind of framework. In addition, Manner automatically:
+ * **Decode request body**: Decode form data, x-www-form urlencoded data and more. 
+ * **Chunk HTTP response**: Return buffers, streams, promises, objects or any type of primities down the HTTP response as fast as possible.
+ * **Manage HTTP status**: Manage the status of your service by sending appropriate status code to the client.
+
 
 ## Usage
 
@@ -24,8 +28,7 @@ const api = service({
 })
 
 http.createServer((req, res) => {
-  api(req)
-    .pipe(res)
+  api(req, res).pipe(res)
 })
 ```
 
