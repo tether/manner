@@ -30,7 +30,7 @@
     "tape": "*"
   },
   "dependencies": {
-    "morph-stream": "^2.0.0",
+    "morph-stream": "^3.0.0",
     "readable-stream": "^2.2.11",
     "request-content": "^1.0.1"
   }

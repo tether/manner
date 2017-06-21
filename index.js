@@ -29,8 +29,9 @@ module.exports = function (methods) {
       if(cb) {
         let result
         try {
-          morph(cb(params, data), readable)
+          morph(cb(params, data), false, readable)
         } catch (e) {
+          console.log('yooooo', e)
           // @note we should send more details in the payload
           // and send proper status
           status(res, 400, 'Bad Request')
