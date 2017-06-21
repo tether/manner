@@ -25,8 +25,17 @@ module.exports = function (methods) {
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
     content(req, data => {
-      if(cb) stream(cb(params, data), readable)
-      else status(res, 501)
+      if(cb) {
+        let result
+        try {
+          stream(cb(params, data), readable)
+        } catch (e) {
+          // @note we should send more details in the payload
+          // and send proper status
+          status(res, 400, 'Bad Request')
+          res.end()
+        }
+      } else status(res, 501, 'Not Implemented')
     })
     return readable
   }
@@ -41,9 +50,9 @@ module.exports = function (methods) {
  * @api private
  */
 
-function status (response, code) {
+function status (response, code, message) {
   response.statusCode = code
-  response.statusMessage = 'Not Implemented'
+  response.statusMessage = message
   response.end()
 }
 
