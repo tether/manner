@@ -1,6 +1,6 @@
 {
   "name": "manner",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -32,6 +32,6 @@
   "dependencies": {
     "morph-stream": "^3.0.0",
     "readable-stream": "^2.2.11",
-    "request-content": "^1.0.1"
+    "request-content": "^1.1.0"
   }
 }
