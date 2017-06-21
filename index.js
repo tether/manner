@@ -6,6 +6,7 @@ const url = require('url').parse
 const query = require('querystring').parse
 const Readable = require('readable-stream').Readable
 const content = require('request-content')
+const morph = require('morph-stream')
 
 /**
  * This is a simple description.
@@ -28,12 +29,11 @@ module.exports = function (methods) {
       if(cb) {
         let result
         try {
-          stream(cb(params, data), readable)
+          morph(cb(params, data), readable)
         } catch (e) {
           // @note we should send more details in the payload
           // and send proper status
           status(res, 400, 'Bad Request')
-          res.end()
         }
       } else status(res, 501, 'Not Implemented')
     })
@@ -54,36 +54,4 @@ function status (response, code, message) {
   response.statusCode = code
   response.statusMessage = message
   response.end()
-}
-
-
-/**
- * Transform passed value into a stream.
- *
- * @param {Any} value
- * @param {ReadableStream} readable
- * @return {Stream}
- * @api private
- */
-
-function stream (value, readable) {
-  if (value && typeof value.pipe === 'function') {
-    if(value.readable) {
-      value.on('data', buf => readable.push(buf))
-      value.on('end', () => readable.push(null))
-    } else {
-      // throw new Error('Returned stream should be readable or duplex.')
-      readable.push(null)
-    }
-  } else {
-    if(typeof value === 'object' && typeof value.then === 'function') {
-      value.then(reason => {
-        readable.push(reason)
-        readable.push(null)
-      })
-    } else {
-      readable.push(value)
-      readable.push(null)
-    }
-  }
 }
