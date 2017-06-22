@@ -7,6 +7,7 @@ const query = require('querystring').parse
 const Readable = require('readable-stream').Readable
 const content = require('request-content')
 const morph = require('morph-stream')
+const status = require('response-error')
 
 
 /**
@@ -32,29 +33,12 @@ module.exports = function (methods) {
         try {
           morph(cb(params, data), false, readable)
         } catch (e) {
-          console.log('yooooo', e)
           // @note we should send more details in the payload
           // and send proper status
-          status(res, 400, 'Bad Request')
+          status(res, 400)
         }
-      } else status(res, 501, 'Not Implemented')
+      } else status(res, 501)
     })
     return readable
   }
-}
-
-
-
-/**
- * Genereate response status code and close connection.
- *
- * @param {ServerResponse} response
- * @param {Number} code
- * @api private
- */
-
-function status (response, code, message) {
-  response.statusCode = code
-  response.statusMessage = message
-  response.end()
 }
