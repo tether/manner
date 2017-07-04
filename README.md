@@ -8,7 +8,7 @@
 
 This module makes easy to create HTTP methods (GET, POST, OPTIONS, HEAD, DELETE, etc) agnostic to any kind of framework. In addition, Manner automatically:
  * **Decode request body**: Decode form data, x-www-form urlencoded data and more. 
- * **Chunk HTTP response**: Return buffers, streams, promises, objects or any type of primities down the HTTP response as fast as possible.
+ * **Chunk HTTP response**: Return buffers, streams, promises, objects or any type of primitives down the HTTP response as fast as possible.
  * **Manage HTTP status**: Manage the status of your service by sending appropriate status code to the client.
 
 
