@@ -138,6 +138,34 @@ test('should stream returned promise data', assert => {
 })
 
 
+test('should create service from function', assert => {
+  assert.plan(1)
+  const api = service(() => {
+    return {
+      'get': (params) => {
+        assert.deepEqual(params, {
+          label: 'hello'
+        })
+      }
+    }
+  })
+  api(request('GET', 'label=hello'))
+})
+
+
+test('should pass request and response to function service', assert => {
+  assert.plan(2)
+  const req = {}
+  const res = {}
+  const api = service((request, response) => {
+    assert.equal(request, req)
+    assert.equal(response, res)
+  })
+  api(req, res)
+})
+
+
+
 /**
  * Simulate HTTP request.
  *
