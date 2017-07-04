@@ -26,17 +26,20 @@ test('get params from GET incoming message', assert => {
   }, 'get', 'label=hello')
 })
 
-// test('Method params is always an object', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     'get': (params) => {
-//       assert.deepEqual(params, {})
-//     }
-//   })
-//   api(request('GET'))
-// })
-//
-//
+test('Method params is always an object', assert => {
+  assert.plan(2)
+  const api = service({
+    'get': (params) => {
+      assert.equal(typeof params, 'object')
+      assert.equal(params != null, true)
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  }, 'get')
+})
+
+
 // test('get data from POST incoming message', assert => {
 //   assert.plan(2)
 //   const message = {
@@ -50,25 +53,29 @@ test('get params from GET incoming message', assert => {
 //       assert.deepEqual(data, message)
 //     }
 //   })
-//   api(request('POST', 'label=hello', message))
+//   server((req, res) => {
+//     api(req, res)
+//   }, 'post', 'label=hello', message)
 // })
-//
-//
-// test('should stream returned object data', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     'get': (params) => ({
-//       foo: 'bar'
-//     })
-//   })
-//   api(request('GET'))
-//     .pipe(concat(data => {
-//       assert.deepEqual(data[0], {
-//         foo: 'bar'
-//       })
-//     }))
-// })
-//
+
+
+test('should stream returned object data as string', assert => {
+  assert.plan(1)
+  const api = service({
+    'get': (params) => ({
+      foo: 'bar'
+    })
+  })
+  server((req, res) => {
+    api(req, res)
+      .pipe(concat(data => {
+        assert.deepEqual(JSON.parse(data), {
+          foo: 'bar'
+        })
+      }))
+  }, 'get')
+})
+
 //
 // test('should stream returned string data', assert => {
 //   assert.plan(1)
