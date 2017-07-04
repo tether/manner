@@ -27,6 +27,7 @@
     "concat-stream": "^1.6.0",
     "neo4j-driver": "^1.3.0",
     "readable-stream": "^2.2.11",
+    "request": "^2.81.0",
     "tape": "*"
   },
   "dependencies": {
