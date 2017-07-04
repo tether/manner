@@ -7,12 +7,14 @@
 [![guidelines](https://tether.github.io/contribution-guide/badge-guidelines.svg)](https://github.com/tether/contribution-guide)
 
 This module makes easy to create HTTP methods (GET, POST, OPTIONS, HEAD, DELETE, etc) agnostic to any kind of framework. In addition, Manner automatically:
- * **Decode request body**: Decode form data, x-www-form urlencoded data and more. 
+ * **Decode request body**: Decode form data, x-www-form urlencoded data and more.
  * **Chunk HTTP response**: Return buffers, streams, promises, objects or any type of primitives down the HTTP response as fast as possible.
  * **Manage HTTP status**: Manage the status of your service by sending appropriate status code to the client.
 
 
 ## Usage
+
+Create a web service from an object:
 
 ```javascript
 const http = require('http')
@@ -32,6 +34,21 @@ http.createServer((req, res) => {
 })
 ```
 
+or from a function is you need to access the request or response incoming streams.
+
+```javascript
+
+const api = service((req, res) => {
+  return {
+    'get': (query) => 'hello world!'
+  }
+})
+
+http.createServer((req, res) => {
+  api(req, res).pipe(res)
+})
+
+```
 
 ## Installation
 
