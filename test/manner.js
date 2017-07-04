@@ -76,107 +76,122 @@ test('should stream returned object data as string', assert => {
   }, 'get')
 })
 
-//
-// test('should stream returned string data', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     'get': (params) => 'hello world'
-//   })
-//   api(request('GET'))
-//     .pipe(concat(data => {
-//       assert.deepEqual(data.toString(), 'hello world')
-//     }))
-// })
-//
-// test('should stream returned stream data', assert => {
+
+test('should stream returned string data', assert => {
+  assert.plan(1)
+  const api = service({
+    'get': (params) => 'hello world'
+  })
+  server((req, res) => {
+    api(req, res)
+      .pipe(concat(data => {
+        assert.deepEqual(data, 'hello world')
+      }))
+  }, 'get')
+})
+
+test('should stream returned stream data', assert => {
+  assert.plan(1)
+  const api = service({
+    'get': (params) => {
+      const result = new Readable
+      result._read = function () {}
+      setTimeout(() => {
+        result.push('hello ')
+        setTimeout(() => {
+          result.push('world')
+          result.push(null)
+        }, 10)
+      }, 10)
+      return result
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+      .pipe(concat(data => {
+        assert.deepEqual(data.toString(), 'hello world')
+      }))
+  }, 'get')
+})
+
+
+// test('should not stream returned writable stream data', assert => {
 //   assert.plan(1)
 //   const api = service({
 //     'get': (params) => {
-//       const result = new Readable
-//       result._read = function () {}
+//       const result = new Writable
+//       result._write = function () {}
 //       setTimeout(() => {
-//         result.push('hello ')
+//         result.write('hello ')
 //         setTimeout(() => {
-//           result.push('world')
-//           result.push(null)
+//           result.write('world')
+//           //result.write(null)
 //         }, 10)
 //       }, 10)
 //       return result
 //     }
 //   })
-//   api(request('GET'))
-//     .pipe(concat(data => {
-//       assert.deepEqual(data.toString(), 'hello world')
-//     }))
+//   server((req, res) => {
+//     api(req, res)
+//       .pipe(concat(data => {
+//         assert.deepEqual(data.toString(), 'hello world')
+//       }))
+//   }, 'get')
 // })
-//
-//
-// // test('should not stream returned writable stream data', assert => {
-// //   assert.plan(1)
-// //   const api = service({
-// //     'get': (params) => {
-// //       const result = new Writable
-// //       result._write = function () {}
-// //       setTimeout(() => {
-// //         result.write('hello ')
-// //         setTimeout(() => {
-// //           result.write('world')
-// //           //result.write(null)
-// //         }, 10)
-// //       }, 10)
-// //       return result
-// //     }
-// //   })
-// //   api(request('GET'))
-// //     .pipe(concat(data => {
-// //       assert.deepEqual(data.toString(), 'hello world')
-// //     }))
-// // })
-//
-//
-//
-// test('should stream returned promise data', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     'get': (params) => {
-//       return new Promise((resolve, reject) => {
-//         setTimeout(() => resolve('hello world'), 10)
-//       })
-//     }
-//   })
-//   api(request('GET'))
-//     .pipe(concat(data => {
-//       assert.deepEqual(data.toString(), 'hello world')
-//     }))
-// })
-//
-//
-// test('should create service from function', assert => {
-//   assert.plan(1)
-//   const api = service(() => {
-//     return {
-//       'get': (params) => {
-//         assert.deepEqual(params, {
-//           label: 'hello'
-//         })
-//       }
-//     }
-//   })
-//   api(request('GET', 'label=hello'))
-// })
-//
-//
-// test('should pass request and response to function service', assert => {
-//   assert.plan(2)
-//   const req = {}
-//   const res = {}
-//   const api = service((request, response) => {
-//     assert.equal(request, req)
-//     assert.equal(response, res)
-//   })
-//   api(req, res)
-// })
-//
+
+
+
+
+
+test('should stream returned promise data', assert => {
+  assert.plan(1)
+  const api = service({
+    'get': (params) => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => resolve('hello world'), 10)
+      })
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+      .pipe(concat(data => {
+        assert.deepEqual(data.toString(), 'hello world')
+      }))
+  }, 'get')
+
+})
+
+
+test('should create service from function', assert => {
+  assert.plan(1)
+  const api = service(() => {
+    return {
+      'get': (params) => {
+        assert.deepEqual(params, {
+          label: 'hello'
+        })
+      }
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  }, 'get', 'label=hello')
+})
+
+
+test('should pass request and response to function service', assert => {
+  assert.plan(2)
+  server((req, res) => {
+    service((request, response) => {
+      assert.equal(request, req)
+      assert.equal(response, res)
+      return {
+        get() {}
+      }
+    })(req, res)
+  }, 'get')
+})
+
 //
 //
 // /**
