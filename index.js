@@ -24,7 +24,9 @@ module.exports = function (methods) {
     })
     readable._read = () => {}
     const type = req.method.toLowerCase()
-    const cb = methods[type]
+    const cb = typeof methods === 'function'
+      ? methods(req, res)[type]
+      : methods[type]
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
     content(req, data => {
