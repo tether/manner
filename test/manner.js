@@ -40,23 +40,23 @@ test('Method params is always an object', assert => {
 })
 
 
-// test('get data from POST incoming message', assert => {
-//   assert.plan(2)
-//   const message = {
-//     foo: 'bar'
-//   }
-//   const api = service({
-//     'post': (params, data) => {
-//       assert.deepEqual(params, {
-//         label: 'hello'
-//       })
-//       assert.deepEqual(data, message)
-//     }
-//   })
-//   server((req, res) => {
-//     api(req, res)
-//   }, 'post', 'label=hello', message)
-// })
+test('get data from POST incoming message', assert => {
+  assert.plan(2)
+  const message = {
+    foo: 'bar'
+  }
+  const api = service({
+    'post': (params, data) => {
+      assert.deepEqual(params, {
+        label: 'hello'
+      })
+      assert.deepEqual(data, message)
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  }, 'post', 'label=hello', message)
+})
 
 
 test('should stream returned object data as string', assert => {
@@ -192,28 +192,17 @@ test('should pass request and response to function service', assert => {
   }, 'get')
 })
 
-//
-//
-// /**
-//  * Simulate HTTP request.
-//  *
-//  * @param {String} method
-//  * @param {String} params
-//  * @param {Object} data
-//  * @api private
-//  */
-//
-// function request (method, params, data) {
-//   const req = new Readable
-//   req._read = function () {}
-//   req.method = method
-//   req.url = params ? '?' + params : ''
-//   req.push(JSON.stringify(data))
-//   req.push(null)
-//   return req
-// }
 
 
+/**
+ * Create HTTP server.
+ *
+ * @param {Function} cb
+ * @param {String} method
+ * @param {String} params
+ * @param {Object} data
+ * @api private
+ */
 
 function server (cb, method, params, data) {
   const server = http.createServer((req, res) => {
@@ -222,7 +211,7 @@ function server (cb, method, params, data) {
   }).listen(() => {
     const port = server.address().port
     const sock = net.connect(port)
-    request[method || 'post'](`http://localhost:${port}?${params}`, data, () => {
+    request[method || 'post'](`http://localhost:${port}?${params}`, {form: data}, () => {
       sock.end();
       server.close();
     })
