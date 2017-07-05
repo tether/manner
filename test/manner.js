@@ -192,7 +192,17 @@ test('should pass request and response to function service', assert => {
   }, 'get')
 })
 
-
+test('should manage basic authentication', assert => {
+  assert.plan(2)
+  server((req, res) => {
+    service({
+      auth(user, password) {
+        assert.equal(user, 'foo')
+        assert.equal(password, 'bar')
+      }
+    })
+  })
+})
 
 /**
  * Create HTTP server.
