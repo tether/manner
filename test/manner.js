@@ -201,7 +201,7 @@ test('should manage basic authentication', assert => {
         assert.equal(password, 'bar')
       }
     })
-  })
+  }, 'post')
 })
 
 /**

@@ -8,10 +8,10 @@
 
 This module makes easy to create HTTP methods (GET, POST, OPTIONS, HEAD, DELETE, etc) agnostic to any kind of framework. In addition, Manner automatically:
  * **Decode request body**: Decode form data, x-www-form urlencoded data and more.
- * **Manage authorization requests**: Create a custom `auth` method to manage any type of authorization header when present in a POST request.
  * **Chunk HTTP response**: Return buffers, streams, promises, objects or any type of primitives down the HTTP response as fast as possible.
  * **Manage HTTP status**: Manage the status of your service by sending appropriate status code to the client.
 
+See [features](#features) for more goodness.
 
 ## Usage
 
@@ -59,6 +59,9 @@ npm install manner --save
 
 [![NPM](https://nodei.co/npm/manner.png)](https://nodei.co/npm/manner/)
 
+## Features
+
+ * Manage authorization requests: Create a custom `auth` method to manage any type of authorization type when present in a POST request.
 
 ## Question
 
