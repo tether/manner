@@ -23,10 +23,15 @@ module.exports = function (methods) {
       objectMode: true
     })
     readable._read = () => {}
-    const type = req.method.toLowerCase()
-    const cb = typeof methods === 'function'
+    let type = req.method.toLowerCase()
+    const authorization = req.headers['authorization']
+    if (type === 'post' && authorization) {
+      type = 'auth'
+    }
+    let cb = typeof methods === 'function'
       ? methods(req, res)[type]
       : methods[type]
+    if (type === 'auth') cb = cb.bind(null, ...credentials(authorization))
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
     content(req, data => {
@@ -43,4 +48,18 @@ module.exports = function (methods) {
     })
     return readable
   }
+}
+
+
+/**
+ * Handle authorization header and return function with
+ * user and password binded.
+ *
+ * @param {String} header
+ * @api private
+ */
+
+function credentials (header) {
+  const buffer = new Buffer(header.split(' ')[1], 'base64')
+  return buffer.toString().split(':')
 }

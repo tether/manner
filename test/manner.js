@@ -194,15 +194,16 @@ test('should pass request and response to function service', assert => {
 
 test('should manage basic authentication', assert => {
   assert.plan(2)
-  server((req, res) => {
+  auth((req, res) => {
     service({
       auth(user, password) {
         assert.equal(user, 'foo')
         assert.equal(password, 'bar')
       }
-    })
-  }, 'post')
+    })(req, res)
+  }, 'foo', 'bar')
 })
+
 
 /**
  * Create HTTP server.
@@ -222,6 +223,38 @@ function server (cb, method, params, data) {
     const port = server.address().port
     const sock = net.connect(port)
     request[method || 'post'](`http://localhost:${port}?${params}`, {form: data}, () => {
+      sock.end();
+      server.close();
+    })
+  })
+}
+
+
+/**
+ * Create authentication server.
+ *
+ * @param {Function} cb
+ * @param {String} user
+ * @param {String} password
+ * @api private
+ */
+
+
+function auth (cb, user, password) {
+  const credentials = 'Basic ' + new Buffer(user + ':' + password).toString('base64')
+  const server = http.createServer((req, res) => {
+    cb(req, res)
+    res.end()
+  }).listen(() => {
+    const port = server.address().port
+    const sock = net.connect(port)
+    request.post({
+      url: `http://localhost:${port}`,
+      headers: {
+        'Authorization' : credentials
+      },
+      form: {}
+    }, () => {
       sock.end();
       server.close();
     })
