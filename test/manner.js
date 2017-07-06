@@ -7,13 +7,16 @@ const service = require('..')
 const concat = require('concat-stream')
 const Readable = require('stream').Readable
 const Writable = require('stream').Writable
-const http = require('http')
-const request = require('request')
-const net = require('net')
+const server = require('server-test')
 
 
 test('get params from GET incoming message', assert => {
   assert.plan(1)
+  const request = {
+    qs: {
+      label: 'hello'
+    }
+  }
   const api = service({
     'get': (params) => {
       assert.deepEqual(params, {
@@ -23,7 +26,7 @@ test('get params from GET incoming message', assert => {
   })
   server((req, res) => {
     api(req, res)
-  }, 'get', 'label=hello')
+  }, request)
 })
 
 test('Method params is always an object', assert => {
@@ -36,7 +39,7 @@ test('Method params is always an object', assert => {
   })
   server((req, res) => {
     api(req, res)
-  }, 'get')
+  })
 })
 
 
@@ -44,6 +47,13 @@ test('get data from POST incoming message', assert => {
   assert.plan(2)
   const message = {
     foo: 'bar'
+  }
+  const request = {
+    method: 'POST',
+    qs: {
+      label: 'hello'
+    },
+    form: message
   }
   const api = service({
     'post': (params, data) => {
@@ -55,7 +65,7 @@ test('get data from POST incoming message', assert => {
   })
   server((req, res) => {
     api(req, res)
-  }, 'post', 'label=hello', message)
+  }, request)
 })
 
 
@@ -73,7 +83,7 @@ test('should stream returned object data as string', assert => {
           foo: 'bar'
         })
       }))
-  }, 'get')
+  })
 })
 
 
@@ -87,7 +97,7 @@ test('should stream returned string data', assert => {
       .pipe(concat(data => {
         assert.deepEqual(data, 'hello world')
       }))
-  }, 'get')
+  })
 })
 
 test('should stream returned stream data', assert => {
@@ -111,7 +121,7 @@ test('should stream returned stream data', assert => {
       .pipe(concat(data => {
         assert.deepEqual(data.toString(), 'hello world')
       }))
-  }, 'get')
+  })
 })
 
 
@@ -157,7 +167,7 @@ test('should stream returned promise data', assert => {
       .pipe(concat(data => {
         assert.deepEqual(data.toString(), 'hello world')
       }))
-  }, 'get')
+  })
 
 })
 
@@ -175,7 +185,11 @@ test('should create service from function', assert => {
   })
   server((req, res) => {
     api(req, res)
-  }, 'get', 'label=hello')
+  }, {
+    qs: {
+      label: 'hello'
+    }
+  })
 })
 
 
@@ -189,74 +203,5 @@ test('should pass request and response to function service', assert => {
         get() {}
       }
     })(req, res)
-  }, 'get')
-})
-
-test('should manage basic authentication', assert => {
-  assert.plan(2)
-  auth((req, res) => {
-    service({
-      auth(user, password) {
-        assert.equal(user, 'foo')
-        assert.equal(password, 'bar')
-      }
-    })(req, res)
-  }, 'foo', 'bar')
-})
-
-
-/**
- * Create HTTP server.
- *
- * @param {Function} cb
- * @param {String} method
- * @param {String} params
- * @param {Object} data
- * @api private
- */
-
-function server (cb, method, params, data) {
-  const server = http.createServer((req, res) => {
-    cb(req, res)
-    res.end()
-  }).listen(() => {
-    const port = server.address().port
-    const sock = net.connect(port)
-    request[method || 'post'](`http://localhost:${port}?${params}`, {form: data}, () => {
-      sock.end();
-      server.close();
-    })
   })
-}
-
-
-/**
- * Create authentication server.
- *
- * @param {Function} cb
- * @param {String} user
- * @param {String} password
- * @api private
- */
-
-
-function auth (cb, user, password) {
-  const credentials = 'Basic ' + new Buffer(user + ':' + password).toString('base64')
-  const server = http.createServer((req, res) => {
-    cb(req, res)
-    res.end()
-  }).listen(() => {
-    const port = server.address().port
-    const sock = net.connect(port)
-    request.post({
-      url: `http://localhost:${port}`,
-      headers: {
-        'Authorization' : credentials
-      },
-      form: {}
-    }, () => {
-      sock.end();
-      server.close();
-    })
-  })
-}
+})
