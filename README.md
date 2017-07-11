@@ -35,22 +35,6 @@ http.createServer((req, res) => {
 })
 ```
 
-or from a function is you need to access the request or response incoming streams.
-
-```javascript
-
-const api = service((req, res) => {
-  return {
-    'get': (query) => 'hello world!'
-  }
-})
-
-http.createServer((req, res) => {
-  api(req, res).pipe(res)
-})
-
-```
-
 ## Installation
 
 ```shell

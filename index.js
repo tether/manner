@@ -37,11 +37,10 @@ module.exports = function (methods) {
     // what if .on('abort')?
     content(req, data => {
       if(cb) {
-        let result
         try {
           pass(cb(params, data), false, readable)
         } catch (e) {
-          // @note we should send more details in the payload
+          // @note we should send more details in the error payload
           // and send proper status
           status(res, 400)
         }
