@@ -172,22 +172,25 @@ test('should stream returned promise data', assert => {
 })
 
 
-// test('should create service from function', assert => {
-//   assert.plan(1)
-//   const api = service(() => {
-//     return {
-//       'get': (params) => {
-//         assert.deepEqual(params, {
-//           label: 'hello'
-//         })
-//       }
-//     }
-//   })
-//   server((req, res) => {
-//     api(req, res)
-//   }, {
-//     qs: {
-//       label: 'hello'
-//     }
-//   })
-// })
+test('get accept dynamic routes', assert => {
+  assert.plan(1)
+  const request = {
+    url: '/foo',
+    qs: {
+      label: 'hello'
+    }
+  }
+  const api = service({
+    'get': {
+      '/:name': (params) => {
+        assert.deepEqual(params, {
+          label: 'hello',
+          name: 'foo'
+        })
+      }
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  }, request)
+})
