@@ -26,6 +26,7 @@ module.exports = function (methods) {
           const pathname = url(req.url).pathname
           const handler = route(pathname)
           if (handler) handler.arg(Object.assign(query, handler.params), data, req, res)
+          else status(res, 501)
         }
       }
     })
@@ -42,8 +43,6 @@ module.exports = function (methods) {
         try {
           pass(cb(params, data, req, res), false, readable)
         } catch (e) {
-          // @note we should send more details in the error payload
-          // and send proper status
           status(res, 400)
         }
       } else status(res, 501)
