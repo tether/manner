@@ -21,10 +21,11 @@ module.exports = function (methods) {
   Object.keys(methods)
     .map(key => {
       if (typeof methods[key] === 'object') {
-        const handler = routes(methods[key])
+        const route = routes(methods[key])
         methods[key] = (query, data, req, res) => {
           const pathname = url(req.url).pathname
-          console.log('PATHNAME', pathname, handler(pathname))
+          const handler = route(pathname)
+          if (handler) handler.arg(Object.assign(query, handler.params), data, req, res)
         }
       }
     })
