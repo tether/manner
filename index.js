@@ -21,7 +21,7 @@ module.exports = function (methods) {
   // Object.keys(methods)
   //   .map(key => {
   //     if (typeof methods[key] === 'object') {
-  //       methods[key] = () => {
+  //       methods[key] = (...args) => {
   //
   //       }
   //     }
@@ -31,14 +31,13 @@ module.exports = function (methods) {
       objectMode: true
     })
     readable._read = () => {}
-    let type = req.method.toLowerCase()
-    let cb = methods[type]
+    let cb = methods[req.method.toLowerCase()]
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
     content(req, data => {
       if(cb) {
         try {
-          pass(cb(params, data), false, readable)
+          pass(cb(params, data, req, res), false, readable)
         } catch (e) {
           // @note we should send more details in the error payload
           // and send proper status
