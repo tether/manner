@@ -172,36 +172,22 @@ test('should stream returned promise data', assert => {
 })
 
 
-test('should create service from function', assert => {
-  assert.plan(1)
-  const api = service(() => {
-    return {
-      'get': (params) => {
-        assert.deepEqual(params, {
-          label: 'hello'
-        })
-      }
-    }
-  })
-  server((req, res) => {
-    api(req, res)
-  }, {
-    qs: {
-      label: 'hello'
-    }
-  })
-})
-
-
-test('should pass request and response to function service', assert => {
-  assert.plan(2)
-  server((req, res) => {
-    service((request, response) => {
-      assert.equal(request, req)
-      assert.equal(response, res)
-      return {
-        get() {}
-      }
-    })(req, res)
-  })
-})
+// test('should create service from function', assert => {
+//   assert.plan(1)
+//   const api = service(() => {
+//     return {
+//       'get': (params) => {
+//         assert.deepEqual(params, {
+//           label: 'hello'
+//         })
+//       }
+//     }
+//   })
+//   server((req, res) => {
+//     api(req, res)
+//   }, {
+//     qs: {
+//       label: 'hello'
+//     }
+//   })
+// })

@@ -6,7 +6,7 @@ const url = require('url').parse
 const query = require('querystring').parse
 const Readable = require('readable-stream').Readable
 const content = require('request-content')
-const morph = require('morph-stream')
+const pass = require('morph-stream')
 const status = require('response-error')
 
 
@@ -18,22 +18,28 @@ const status = require('response-error')
  */
 
 module.exports = function (methods) {
+  // Object.keys(methods)
+  //   .map(key => {
+  //     if (typeof methods[key] === 'object') {
+  //       methods[key] = () => {
+  //
+  //       }
+  //     }
+  //   })
   return (req, res) => {
     const readable = Readable({
       objectMode: true
     })
     readable._read = () => {}
     let type = req.method.toLowerCase()
-    let cb = typeof methods === 'function'
-      ? methods(req, res)[type]
-      : methods[type]
+    let cb = methods[type]
     const params = query(url(req.url).query) || {}
     // what if .on('abort')?
     content(req, data => {
       if(cb) {
         let result
         try {
-          morph(cb(params, data), false, readable)
+          pass(cb(params, data), false, readable)
         } catch (e) {
           // @note we should send more details in the payload
           // and send proper status
