@@ -26,7 +26,7 @@ module.exports = function (methods, prefix = '') {
         methods[key] = (query, data, req, res) => {
           const pathname = url(req.url).pathname
           const handler = route(pathname.substring(prefix.length))
-          if (handler) handler.arg(Object.assign(query, handler.params), data, req, res)
+          if (handler) return handler.arg(Object.assign(query, handler.params), data, req, res)
           else status(res, 501)
         }
       }
@@ -42,7 +42,8 @@ module.exports = function (methods, prefix = '') {
     content(req, data => {
       if(cb) {
         try {
-          pass(cb(params, data, req, res), false, readable)
+          const value = cb(params, data, req, res)
+          if (value) pass(value, false, readable)
         } catch (e) {
           status(res, 400)
         }
