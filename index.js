@@ -10,22 +10,35 @@ const pass = require('morph-stream')
 const status = require('response-error')
 const routes = require('manner-path')
 
+
 /**
- * This is a simple description.
+ * Create HTTP endpoint from an object containing
+ * HTTP methods (lowercase).
  *
+ * Examples:
+ *
+ *   ```js
+ *   const service = require('manner')
+ *   service({
+ *     get(query, data) {
+ *       // return something
+ *     }
+ *   })
+ *
+ *   ```
  * @param {Object} methods
- * @param {String?} prefix
+ * @param {String?} relative path
  * @api public
  */
 
-module.exports = function (methods, prefix = '') {
+module.exports = function (methods, relative = '') {
   Object.keys(methods)
     .map(key => {
       if (typeof methods[key] === 'object') {
         const route = routes(methods[key])
         methods[key] = (query, data, req, res) => {
-          const pathname = url(req.url).pathname
-          const handler = route(pathname.substring(prefix.length))
+          const pathname = format(url(req.url).pathname, relative)
+          const handler = route(pathname)
           if (handler) return handler.arg(Object.assign(query, handler.params), data, req, res)
           else status(res, 501)
         }
@@ -51,4 +64,19 @@ module.exports = function (methods, prefix = '') {
     })
     return readable
   }
+}
+
+
+/**
+ * Format request path name.
+ *
+ * @param {String} pathname
+ * @param {String} relative
+ * @return {String}
+ * @api private
+ */
+
+function format (pathname, relative) {
+  if (pathname.substr(-1) !== '/') pathname = pathname + '/'
+  return pathname.substring(relative.length)
 }
