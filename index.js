@@ -14,17 +14,18 @@ const routes = require('manner-path')
  * This is a simple description.
  *
  * @param {Object} methods
+ * @param {String?} prefix
  * @api public
  */
 
-module.exports = function (methods) {
+module.exports = function (methods, prefix = '') {
   Object.keys(methods)
     .map(key => {
       if (typeof methods[key] === 'object') {
         const route = routes(methods[key])
         methods[key] = (query, data, req, res) => {
           const pathname = url(req.url).pathname
-          const handler = route(pathname)
+          const handler = route(pathname.substring(prefix.length))
           if (handler) handler.arg(Object.assign(query, handler.params), data, req, res)
           else status(res, 501)
         }
