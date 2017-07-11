@@ -8,7 +8,7 @@ const Readable = require('readable-stream').Readable
 const content = require('request-content')
 const pass = require('morph-stream')
 const status = require('response-error')
-
+const routes = require('manner-path')
 
 /**
  * This is a simple description.
@@ -18,14 +18,16 @@ const status = require('response-error')
  */
 
 module.exports = function (methods) {
-  // Object.keys(methods)
-  //   .map(key => {
-  //     if (typeof methods[key] === 'object') {
-  //       methods[key] = (...args) => {
-  //
-  //       }
-  //     }
-  //   })
+  Object.keys(methods)
+    .map(key => {
+      if (typeof methods[key] === 'object') {
+        const handler = routes(methods[key])
+        methods[key] = (query, data, req, res) => {
+          const pathname = url(req.url).pathname
+          console.log('PATHNAME', pathname, handler(pathname))
+        }
+      }
+    })
   return (req, res) => {
     const readable = Readable({
       objectMode: true

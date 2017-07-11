@@ -183,25 +183,28 @@ test('should pass request and response', assert => {
   }, {})
 })
 
-// test('get accept dynamic routes', assert => {
-//   assert.plan(1)
-//   const request = {
-//     url: '/foo',
-//     qs: {
-//       label: 'hello'
-//     }
-//   }
-//   const api = service({
-//     'get': {
-//       '/:name': (params) => {
-//         assert.deepEqual(params, {
-//           label: 'hello',
-//           name: 'foo'
-//         })
-//       }
-//     }
-//   })
-//   server((req, res) => {
-//     api(req, res)
-//   }, request)
-// })
+
+test('get accept dynamic routes', assert => {
+  assert.plan(1)
+  const request = {
+    qs: {
+      label: 'hello'
+    }
+  }
+  const api = service({
+    'get': {
+      '/:name': (params) => {
+        assert.deepEqual(params, {
+          label: 'hello',
+          name: 'foo'
+        })
+      }
+    }
+  })
+  server((req, res) => {
+    console.log(req.url)
+    req.url = '/foo' + req.url.substring(1)
+    console.log(req.url)
+    api(req, res)
+  }, request)
+})
