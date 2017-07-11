@@ -206,3 +206,26 @@ test('get accept dynamic routes', assert => {
     api(req, res)
   }, request)
 })
+
+
+test('get root route if dynamic path have been defined', assert => {
+  assert.plan(1)
+  const request = {
+    qs: {
+      label: 'hello'
+    }
+  }
+  const api = service({
+    'get': {
+      '/': () => {
+        assert.ok('path executed')
+      },
+      '/:name': (params) => {
+        assert.fail('should not be called')
+      }
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  }, request)
+})
