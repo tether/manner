@@ -62,6 +62,10 @@ module.exports = function (methods, relative = '') {
         }
       } else status(res, 501)
     })
+    readable.on('error', err => {
+      status(res, err.statusCode || 403)
+      readable.end()
+    })
     return readable
   }
 }
