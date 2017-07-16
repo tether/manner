@@ -27,7 +27,9 @@ test('should be a high order function', assert => {
 // })
 
 
-test('should return value from defined method', assert => {
+// method exist but returns null
+
+test('should return value string from defined method', assert => {
   assert.plan(1)
   const api = service({
     get: 'hello world!'
@@ -36,5 +38,17 @@ test('should return value from defined method', assert => {
     api(req, res).pipe(concat(data => {
       assert.equal(data.toString(), 'hello world!')
     }))
+  })
+})
+
+test('should send 501 if method is not implementd', assert => {
+  assert.plan(2)
+  const api = service({
+    post: 'hello world!'
+  })
+  server((req, res) => {
+    api(req, res).pipe(res)
+    assert.equal(res.statusCode, 501)
+    assert.equal(res.statusMessage , 'Not Implemented')
   })
 })

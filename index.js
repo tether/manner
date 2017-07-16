@@ -4,6 +4,13 @@
 
 const url = require('url').parse
 const salute = require('salute')
+const status = require('http-errors')
+
+/**
+ * Not Implemented callback.
+ */
+
+const notimplemented = salute(() => status(501))
 
 
 /**
@@ -13,10 +20,19 @@ const salute = require('salute')
 module.exports = function (obj) {
   const methods = routes(obj)
   return (req, res) => {
-    return methods[req.method.toLowerCase()](req, res)
+    const cb = methods[req.method.toLowerCase()] || notimplemented
+    return cb(req, res)
   }
 }
 
+
+/**
+ * Create service routes.
+ *
+ * @param {Object} methods
+ * @return {Obkect}
+ * @api private
+ */
 
 function routes (methods) {
   const result = {}
