@@ -41,6 +41,7 @@ test('should return value string from defined method', assert => {
   })
 })
 
+
 test('should send 501 if method is not implementd', assert => {
   assert.plan(2)
   const api = service({
@@ -53,7 +54,7 @@ test('should send 501 if method is not implementd', assert => {
   })
 })
 
-test('should return value function from defined method', assert => {
+test('should execute value function from defined method', assert => {
   assert.plan(1)
   const api = service({
     get: () => 'hello world!'
@@ -62,5 +63,22 @@ test('should return value function from defined method', assert => {
     api(req, res).pipe(concat(data => {
       assert.equal(data.toString(), 'hello world!')
     }))
+  })
+})
+
+test('should pass query parameters to value function', assert => {
+  assert.plan(1)
+  const api = service({
+    get: (params) => params.first + ' ' + params.last
+  })
+  server((req, res) => {
+    api(req, res).pipe(concat(data => {
+      assert.equal(data.toString(), 'john doe')
+    }))
+  }, {
+    qs: {
+      first: 'john',
+      last: 'doe'
+    }
   })
 })

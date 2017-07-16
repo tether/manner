@@ -3,6 +3,7 @@
  */
 
 const url = require('url').parse
+const query = require('querystring').parse
 const salute = require('salute')
 const status = require('http-errors')
 
@@ -39,7 +40,8 @@ function routes (methods) {
   Object.keys(methods).map(key => {
     const cb = curry(methods[key])
     result[key] = salute((req, res) => {
-      return cb()
+      const params = query(url(req.url).query)
+      return cb(params)
     })
   })
   return result
@@ -49,7 +51,7 @@ function routes (methods) {
 /**
  * Curry value into a function.
  *
- * @param {Any} value
+ * @param {Any} val
  * @return {Function}
  * @api private
  */
