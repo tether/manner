@@ -40,7 +40,7 @@ function routes (methods) {
   Object.keys(methods).map(key => {
     const cb = curry(methods[key])
     result[key] = salute((req, res) => {
-      const params = query(url(req.url).query)
+      const params = query(url(req.url).query) || {}
       return cb(params)
     })
   })

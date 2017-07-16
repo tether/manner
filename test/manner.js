@@ -82,3 +82,17 @@ test('should pass query parameters to value function', assert => {
     }
   })
 })
+
+test('should pass empty query parameters to value function', assert => {
+  assert.plan(2)
+  const api = service({
+    get: (params) => {
+      assert.equal(typeof params , 'object')
+      assert.equal(params != null, true)
+      return 'hello world'
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  })
+})
