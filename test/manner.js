@@ -52,3 +52,15 @@ test('should send 501 if method is not implementd', assert => {
     assert.equal(res.statusMessage , 'Not Implemented')
   })
 })
+
+test('should return value function from defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => 'hello world!'
+  })
+  server((req, res) => {
+    api(req, res).pipe(concat(data => {
+      assert.equal(data.toString(), 'hello world!')
+    }))
+  })
+})

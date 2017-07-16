@@ -37,9 +37,25 @@ module.exports = function (obj) {
 function routes (methods) {
   const result = {}
   Object.keys(methods).map(key => {
+    const cb = curry(methods[key])
     result[key] = salute((req, res) => {
-      return methods[key]
+      return cb()
     })
   })
   return result
+}
+
+
+/**
+ * Curry value into a function.
+ *
+ * @param {Any} value
+ * @return {Function}
+ * @api private
+ */
+
+function curry (value) {
+  return typeof value !== 'function'
+    ? () => value
+    : value
 }
