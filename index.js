@@ -6,7 +6,7 @@ const url = require('url').parse
 const query = require('qs').parse
 const salute = require('salute')
 const status = require('http-errors')
-const content = require('co-body')
+const body = require('request-body')
 const router = require('manner-path')
 
 
@@ -63,8 +63,10 @@ function service (value) {
   const method = typeof value === 'object' ? dynamic(value) : curry(value)
   return salute((req, res) => {
     const params = query(url(req.url).query) || {}
-    const result = method(params, {}, req, res)
-    return result == null ? '' : result
+    return body(req).then(data => {
+      const result = method(params, data, req, res)
+      return result == null ? '' : result
+    }, reason => status(422))
   })
 }
 
@@ -81,9 +83,13 @@ function dynamic (value) {
   const route = router(value)
   return (params, data, req, res) => {
     const handler = route(url(req.url).pathname)
-    return handler
-      ? handler.arg(Object.assign(params, handler.params), data, req, res)
-      : status(501)
+    if (handler) {
+      const arg = handler.arg
+      return typeof arg === 'function'
+        ? arg(Object.assign(params, handler.params), data, req, res)
+        : arg
+    }
+    return status(501)
   }
 }
 

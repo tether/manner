@@ -17,18 +17,6 @@ test('should be a high order function', assert => {
   assert.equal(typeof api, 'function')
 })
 
-// test('should return a readable stream when passed a http request and response', assert => {
-//   assert.plan(1)
-//   const api = service()
-//   server((req, res) => {
-//     const stream = api(req, res)
-//     assert.equal(stream instanceof Readable, true)
-//   })
-//
-// })
-
-
-// method exist but returns null
 
 test('should return value string from defined method', assert => {
   assert.plan(1)
