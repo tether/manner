@@ -43,7 +43,7 @@ function routes (methods) {
     const cb = curry(methods[key])
     result[key] = salute((req, res) => {
       const params = query(url(req.url).query) || {}
-      return cb(params)
+      return cb(params, {}, req, res)
     })
   })
   return result

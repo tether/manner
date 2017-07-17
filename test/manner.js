@@ -122,6 +122,21 @@ test('should pass query parameters to value function', assert => {
   })
 })
 
+
+test('should pass request and response', assert => {
+  assert.plan(2)
+  server((req, res) => {
+    service({
+      'get': (params, data, request, response) => {
+        assert.equal(request, req)
+        assert.equal(response, res)
+        return ''
+      }
+    })(req, res)
+  }, {})
+})
+
+
 test('should pass empty query object to value function when request does not have any query parameters', assert => {
   assert.plan(2)
   const api = service({
