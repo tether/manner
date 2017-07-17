@@ -48,7 +48,6 @@ function routes (methods) {
 }
 
 
-
 /**
  * Create service.
  *
@@ -58,20 +57,33 @@ function routes (methods) {
  */
 
 function service (value) {
-  let method = curry(value)
-  if (typeof value === 'object') {
-    const route = router(value)
-    method = (params, data, req, res) => {
-      const handler = route(url(req.url).pathname)
-      return handler
-        ? handler.arg(Object.assign(params, handler.params), data, req, res)
-        : status(501)
-    }
-  }
+  const method = typeof value === 'object' ? dynamic(value) : curry(value)
   return salute((req, res) => {
     const params = query(url(req.url).query) || {}
-    return method(params, {}, req, res)
+    const result = method(params, {}, req, res)
+    return result == null
+      ? ''
+      : result
   })
+}
+
+
+/**
+ * Create dynamic routes service
+ *
+ * @param {Object} value
+ * @return {Function}
+ * @api private
+ */
+
+function dynamic (value) {
+  const route = router(value)
+  return (params, data, req, res) => {
+    const handler = route(url(req.url).pathname)
+    return handler
+      ? handler.arg(Object.assign(params, handler.params), data, req, res)
+      : status(501)
+  }
 }
 
 

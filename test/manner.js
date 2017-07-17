@@ -222,6 +222,18 @@ test('should mixin query parameters with dynamic route params', assert => {
 
 })
 
+test('should not have to return data', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => {
+      assert.ok('service executed')
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  })
+})
+
 // test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
 //   assert.plan(2)
 //   const message = {
