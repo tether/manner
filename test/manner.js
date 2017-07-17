@@ -3,6 +3,7 @@
  */
 
 const test = require('tape')
+const fs = require('fs')
 const service = require('..')
 const concat = require('concat-stream')
 const Readable = require('stream').Readable
@@ -67,7 +68,7 @@ test('should execute value function from defined method', assert => {
 })
 
 
-test('should stream object returned by defined method', assert => {
+test('should chunk object returned by defined method', assert => {
   assert.plan(1)
   const api = service({
     get: () => ({
@@ -82,6 +83,17 @@ test('should stream object returned by defined method', assert => {
     }))
   })
 })
+
+test('should chunk streams returned by defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => fs.createReadStream(__dirname + '/manner.txt')
+  })
+  server((req, res) => {
+    api(req, res).pipe(concat(data => assert.equal(data.toString(), 'hello world\n')))
+  })
+})
+
 
 test('should pass query parameters to value function', assert => {
   assert.plan(1)
