@@ -24,7 +24,7 @@ const service= require('manner')
 const db = []
 
 const api = service({
-  'get': (query) => 'hello world!',
+  'get': 'hello world!',
   'post': (query, data) => {
     return db.push(data)
   }

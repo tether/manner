@@ -3,12 +3,11 @@
  */
 
 const url = require('url').parse
-const query = require('querystring').parse
+const query = require('qs').parse
 const salute = require('salute')
 const status = require('http-errors')
 const content = require('co-body')
 const router = require('manner-path')
-
 
 
 /**
@@ -19,7 +18,11 @@ const notimplemented = salute(() => status(501))
 
 
 /**
+ * Create web services from an object.
  *
+ * @param {Object} obj
+ * @return {Function}
+ * @api public
  */
 
 module.exports = function (obj) {
@@ -61,9 +64,7 @@ function service (value) {
   return salute((req, res) => {
     const params = query(url(req.url).query) || {}
     const result = method(params, {}, req, res)
-    return result == null
-      ? ''
-      : result
+    return result == null ? '' : result
   })
 }
 
