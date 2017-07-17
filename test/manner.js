@@ -151,6 +151,77 @@ test('should pass empty query object to value function when request does not hav
   })
 })
 
+test('get accept dynamic routes', assert => {
+  assert.plan(1)
+  const request = {
+    qs: {
+      label: 'hello'
+    }
+  }
+  const api = service({
+    'get': {
+      '/:name': (params) => {
+        assert.deepEqual(params, {
+          label: 'hello',
+          name: 'foo'
+        })
+        return ''
+      }
+    }
+  })
+  server((req, res) => {
+    req.url = '/foo' + req.url.substring(1)
+    api(req, res)
+  }, request)
+})
+
+test('get root route if dynamic path have been defined', assert => {
+  assert.plan(1)
+  const request = {
+    qs: {
+      label: 'hello'
+    }
+  }
+  const api = service({
+    'get': {
+      '/': () => {
+        assert.ok('path executed')
+        return ''
+      },
+      '/:name': (params) => {
+        assert.fail('should not be called')
+        return ''
+      }
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  }, request)
+})
+
+test('should mixin query parameters with dynamic route params', assert => {
+  assert.plan(2)
+  const api = service({
+    get: {
+      '/:first': (query) => {
+        assert.equal(query.first, 'olivier')
+        assert.equal(query.last, 'doe')
+        return ''
+      }
+    }
+  })
+  server((req, res) => {
+    req.url = '/olivier' + req.url.substring(1)
+    api(req, res)
+  }, {
+    qs: {
+      first: 'john',
+      last: 'doe'
+    }
+  })
+
+})
+
 // test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
 //   assert.plan(2)
 //   const message = {
