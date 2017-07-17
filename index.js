@@ -58,24 +58,20 @@ function routes (methods) {
  */
 
 function service (value) {
+  let method = curry(value)
   if (typeof value === 'object') {
     const route = router(value)
-    return salute((req, res) => {
-      const params = query(url(req.url).query) || {}
-      const pathname = url(req.url).pathname
-      const handler = route(pathname)
+    method = (params, data, req, res) => {
+      const handler = route(url(req.url).pathname)
       return handler
-        ? handler.arg(Object.assign(params, handler.params), {}, req, res)
-        : status(res, 501)
-    })
-    console.log(route)
-  } else {
-    const cb = curry(value)
-    return salute((req, res) => {
-      const params = query(url(req.url).query) || {}
-      return cb(params, {}, req, res)
-    })
+        ? handler.arg(Object.assign(params, handler.params), data, req, res)
+        : status(501)
+    }
   }
+  return salute((req, res) => {
+    const params = query(url(req.url).query) || {}
+    return method(params, {}, req, res)
+  })
 }
 
 
