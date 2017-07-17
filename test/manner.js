@@ -67,6 +67,18 @@ test('should execute value function from defined method', assert => {
   })
 })
 
+test('should not have to return data', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => {
+      assert.ok('service executed')
+    }
+  })
+  server((req, res) => {
+    api(req, res)
+  })
+})
+
 
 test('should chunk object returned by defined method', assert => {
   assert.plan(1)
@@ -130,7 +142,6 @@ test('should pass request and response', assert => {
       'get': (params, data, request, response) => {
         assert.equal(request, req)
         assert.equal(response, res)
-        return ''
       }
     })(req, res)
   }, {})
@@ -143,7 +154,6 @@ test('should pass empty query object to value function when request does not hav
     get: (params) => {
       assert.equal(typeof params , 'object')
       assert.equal(params != null, true)
-      return 'hello world'
     }
   })
   server((req, res) => {
@@ -165,7 +175,6 @@ test('get accept dynamic routes', assert => {
           label: 'hello',
           name: 'foo'
         })
-        return ''
       }
     }
   })
@@ -186,11 +195,9 @@ test('get root route if dynamic path have been defined', assert => {
     'get': {
       '/': () => {
         assert.ok('path executed')
-        return ''
       },
       '/:name': (params) => {
         assert.fail('should not be called')
-        return ''
       }
     }
   })
@@ -206,7 +213,6 @@ test('should mixin query parameters with dynamic route params', assert => {
       '/:first': (query) => {
         assert.equal(query.first, 'olivier')
         assert.equal(query.last, 'doe')
-        return ''
       }
     }
   })
@@ -222,17 +228,6 @@ test('should mixin query parameters with dynamic route params', assert => {
 
 })
 
-test('should not have to return data', assert => {
-  assert.plan(1)
-  const api = service({
-    get: () => {
-      assert.ok('service executed')
-    }
-  })
-  server((req, res) => {
-    api(req, res)
-  })
-})
 
 // test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
 //   assert.plan(2)
