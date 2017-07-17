@@ -94,6 +94,16 @@ test('should chunk streams returned by defined method', assert => {
   })
 })
 
+test('should chunk promise returned by defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => new Promise(resolve => resolve('hello'))
+  })
+  server((req, res) => {
+    api(req, res).pipe(concat(data => assert.equal(data.toString(), 'hello')))
+  })
+})
+
 
 test('should pass query parameters to value function', assert => {
   assert.plan(1)
