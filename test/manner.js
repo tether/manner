@@ -66,6 +66,23 @@ test('should execute value function from defined method', assert => {
   })
 })
 
+
+test('should stream object returned by defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => ({
+      name: 'hello'
+    })
+  })
+  server((req, res) => {
+    api(req, res).pipe(concat(data => {
+      assert.deepEqual(JSON.parse(data), {
+        name: 'hello'
+      })
+    }))
+  })
+})
+
 test('should pass query parameters to value function', assert => {
   assert.plan(1)
   const api = service({
@@ -83,7 +100,7 @@ test('should pass query parameters to value function', assert => {
   })
 })
 
-test('should pass empty query parameters to value function', assert => {
+test('should pass empty query object to value function when request does not have any query parameters', assert => {
   assert.plan(2)
   const api = service({
     get: (params) => {
@@ -96,3 +113,29 @@ test('should pass empty query parameters to value function', assert => {
     api(req, res)
   })
 })
+
+// test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
+//   assert.plan(2)
+//   const message = {
+//     foo: 'bar'
+//   }
+//   const request = {
+//     method: 'POST',
+//     qs: {
+//       label: 'hello'
+//     },
+//     form: message
+//   }
+//   const api = service({
+//     'post': (params, data) => {
+//       assert.deepEqual(params, {
+//         label: 'hello'
+//       })
+//       assert.deepEqual(data, message)
+//       return ''
+//     }
+//   })
+//   server((req, res) => {
+//     api(req, res)
+//   }, request)
+// })

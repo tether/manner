@@ -6,6 +6,8 @@ const url = require('url').parse
 const query = require('querystring').parse
 const salute = require('salute')
 const status = require('http-errors')
+const content = require('co-body')
+
 
 /**
  * Not Implemented callback.
@@ -31,7 +33,7 @@ module.exports = function (obj) {
  * Create service routes.
  *
  * @param {Object} methods
- * @return {Obkect}
+ * @return {Object}
  * @api private
  */
 
