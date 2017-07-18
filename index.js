@@ -82,7 +82,7 @@ function service (value) {
 function dynamic (value) {
   const route = router(value)
   return (params, data, req, res) => {
-    const handler = route(url(req.url).pathname)
+    const handler = route(normalize(url(req.url).pathname))
     if (handler) {
       const arg = handler.arg
       return typeof arg === 'function'
@@ -106,4 +106,18 @@ function static (value) {
   return {
     '/' : typeof value !== 'function' ? () => value : value
   }
+}
+
+
+/**
+ * Normalize path name.
+ *
+ * @param {String} pathname
+ * @return {String}
+ * @api private
+ */
+
+function normalize (pathname) {
+  let suffix = pathname.substr(-1) !== '/' ? '/' : ''
+  return pathname + suffix
 }

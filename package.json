@@ -1,6 +1,6 @@
 {
   "name": "manner",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "HTTP methods as a service",
   "main": "index.js",
   "scripts": {
@@ -30,7 +30,7 @@
     "tape": "*"
   },
   "dependencies": {
-    "manner-path": "2.0.0",
+    "manner-path": "^2.0.1",
     "morph-stream": "^3.1.0",
     "qs": "^6.5.0",
     "readable-stream": "^2.2.11",
