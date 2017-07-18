@@ -60,7 +60,7 @@ function routes (methods) {
  */
 
 function service (value) {
-  const method = typeof value === 'object' ? dynamic(value) : curry(value)
+  const method = dynamic(typeof value === 'object' ? value : static(value))
   return salute((req, res) => {
     const params = query(url(req.url).query) || {}
     return body(req).then(data => {
@@ -95,15 +95,15 @@ function dynamic (value) {
 
 
 /**
- * Curry value into a function.
+ * Create static route and curry value into a function.
  *
  * @param {Any} val
  * @return {Function}
  * @api private
  */
 
-function curry (value) {
-  return typeof value !== 'function'
-    ? () => value
-    : value
+function static (value) {
+  return {
+    '/' : typeof value !== 'function' ? () => value : value
+  }
 }

@@ -24,10 +24,12 @@ test('should return value string from defined method', assert => {
     get: 'hello world!'
   })
   server((req, res) => {
-    api(req, res).pipe(concat(data => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
       assert.equal(data.toString(), 'hello world!')
     }))
-  })
+    input.pipe(res)
+  }, null, true)
 })
 
 
@@ -37,10 +39,13 @@ test('should send 501 if method is not implementd', assert => {
     post: 'hello world!'
   })
   server((req, res) => {
-    api(req, res).pipe(res)
-    assert.equal(res.statusCode, 501)
-    assert.equal(res.statusMessage , 'Not Implemented')
-  })
+    api(req, res)
+      .on('error', () => {
+        assert.equal(res.statusCode, 501)
+        assert.equal(res.statusMessage , 'Not Implemented')
+      })
+      .pipe(res)
+  }, null, true)
 })
 
 test('should execute value function from defined method', assert => {
@@ -49,10 +54,12 @@ test('should execute value function from defined method', assert => {
     get: () => 'hello world!'
   })
   server((req, res) => {
-    api(req, res).pipe(concat(data => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
       assert.equal(data.toString(), 'hello world!')
     }))
-  })
+    input.pipe(res)
+  }, null, true)
 })
 
 test('should not have to return data', assert => {
@@ -63,8 +70,8 @@ test('should not have to return data', assert => {
     }
   })
   server((req, res) => {
-    api(req, res)
-  })
+    api(req, res).pipe(res)
+  }, null, true)
 })
 
 
@@ -76,12 +83,14 @@ test('should chunk object returned by defined method', assert => {
     })
   })
   server((req, res) => {
-    api(req, res).pipe(concat(data => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
       assert.deepEqual(JSON.parse(data), {
         name: 'hello'
       })
     }))
-  })
+    input.pipe(res)
+  }, null, true)
 })
 
 test('should chunk streams returned by defined method', assert => {
@@ -90,8 +99,10 @@ test('should chunk streams returned by defined method', assert => {
     get: () => fs.createReadStream(__dirname + '/manner.txt')
   })
   server((req, res) => {
-    api(req, res).pipe(concat(data => assert.equal(data.toString(), 'hello world\n')))
-  })
+    const input = api(req, res)
+    input.pipe(concat(data => assert.equal(data.toString(), 'hello world\n')))
+    input.pipe(res)
+  }, null, true)
 })
 
 test('should chunk promise returned by defined method', assert => {
@@ -100,8 +111,10 @@ test('should chunk promise returned by defined method', assert => {
     get: () => new Promise(resolve => resolve('hello'))
   })
   server((req, res) => {
-    api(req, res).pipe(concat(data => assert.equal(data.toString(), 'hello')))
-  })
+    const input = api(req, res)
+    input.pipe(concat(data => assert.equal(data.toString(), 'hello')))
+    input.pipe(res)
+  }, null, true)
 })
 
 
@@ -111,15 +124,17 @@ test('should pass query parameters to value function', assert => {
     get: (params) => params.first + ' ' + params.last
   })
   server((req, res) => {
-    api(req, res).pipe(concat(data => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
       assert.equal(data.toString(), 'john doe')
     }))
+    input.pipe(res)
   }, {
     qs: {
       first: 'john',
       last: 'doe'
     }
-  })
+  }, true)
 })
 
 
@@ -131,8 +146,8 @@ test('should pass request and response', assert => {
         assert.equal(request, req)
         assert.equal(response, res)
       }
-    })(req, res)
-  }, {})
+    })(req, res).pipe(res)
+  }, {}, true)
 })
 
 
@@ -145,8 +160,8 @@ test('should pass empty query object to value function when request does not hav
     }
   })
   server((req, res) => {
-    api(req, res)
-  })
+    api(req, res).pipe(res)
+  }, null, true)
 })
 
 test('get accept dynamic routes', assert => {
@@ -168,8 +183,8 @@ test('get accept dynamic routes', assert => {
   })
   server((req, res) => {
     req.url = '/foo' + req.url.substring(1)
-    api(req, res)
-  }, request)
+    api(req, res).pipe(res)
+  }, request, true)
 })
 
 test('get root route if dynamic path have been defined', assert => {
@@ -190,8 +205,8 @@ test('get root route if dynamic path have been defined', assert => {
     }
   })
   server((req, res) => {
-    api(req, res)
-  }, request)
+    api(req, res).pipe(res)
+  }, request, true)
 })
 
 test('should mixin query parameters with dynamic route params', assert => {
@@ -206,39 +221,39 @@ test('should mixin query parameters with dynamic route params', assert => {
   })
   server((req, res) => {
     req.url = '/olivier' + req.url.substring(1)
-    api(req, res)
+    api(req, res).pipe(res)
   }, {
     qs: {
       first: 'john',
       last: 'doe'
     }
-  })
+  }, true)
 
 })
 
-
+//
 // test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
 //   assert.plan(2)
 //   const message = {
 //     foo: 'bar'
 //   }
-//   const request = {
+//   const api = service({
+//     'post': (params, data) => {
+//       console.log('IT IS BEEN CALLED')
+//       assert.deepEqual(params, {
+//         label: 'hello'
+//       })
+//       console.log('data', data)
+//       assert.deepEqual(data, message)
+//     }
+//   })
+//   server((req, res) => {
+//     api(req, res).pipe(res)
+//   }, {
 //     method: 'POST',
 //     qs: {
 //       label: 'hello'
 //     },
 //     form: message
-//   }
-//   const api = service({
-//     'post': (params, data) => {
-//       assert.deepEqual(params, {
-//         label: 'hello'
-//       })
-//       assert.deepEqual(data, message)
-//       return ''
-//     }
-//   })
-//   server((req, res) => {
-//     api(req, res)
-//   }, request)
+//   }, true)
 // })
