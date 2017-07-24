@@ -17,21 +17,21 @@ test('should be a high order function', assert => {
   assert.equal(typeof api, 'function')
 })
 
-// 
-// test('should return value string from defined method', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: 'hello world!'
-//   })
-//   server((req, res) => {
-//     const input = api(req, res)
-//     input.pipe(concat(data => {
-//       assert.equal(data.toString(), 'hello world!')
-//     }))
-//     input.pipe(res)
-//   }, null, true)
-// })
-//
+
+test('should return value string from defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: 'hello world!'
+  })
+  server((req, res) => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
+      assert.equal(data.toString(), 'hello world!')
+    }))
+    input.pipe(res)
+  }, null, true)
+})
+
 //
 // test('should send 501 if method is not implementd', assert => {
 //   assert.plan(2)
