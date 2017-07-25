@@ -3,11 +3,21 @@
  */
 
 const service = require('methodd')
+const status = require('http-errors')
 const salute = require('salute')
+
+
+/**
+ * Not Implemented callback.
+ */
+
+const notimplemented = status(501)
+
 
 module.exports = methods => {
   const api = service(salute((req, res) => {
-    return api[req.method.toLowerCase()](req.url)
+    const result = api[req.method.toLowerCase()](req.url)
+    return result == null ?  '' : result
   }))
   add(api, methods)
   return api

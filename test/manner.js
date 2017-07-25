@@ -34,62 +34,60 @@ test('should create HTTP method', assert => {
   }, null, true)
 })
 
-// test('should return value string from defined method', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: 'hello world!'
-//   })
-//   server((req, res) => {
-//     const input = api(req, res)
-//     input.pipe(concat(data => {
-//       assert.equal(data.toString(), 'hello world!')
-//     }))
-//     input.pipe(res)
-//   }, null, true)
-// })
 
-//
+test('should create multiple HTTP methods', assert => {
+  assert.plan(2)
+  const api = service({
+    get: {
+      '/': () => 'hello world',
+      '/foo': () => 'hello foo'
+    }
+  })
+  server((req, res) => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
+      assert.equal(data.toString(), 'hello world')
+    }))
+    input.pipe(res)
+  }, null, true)
+  server((req, res) => {
+    req.url = '/foo'
+    const input = api(req, res)
+    input.pipe(concat(data => {
+      assert.equal(data.toString(), 'hello foo')
+    }))
+    input.pipe(res)
+  }, null, true)
+})
+
+
 // test('should send 501 if method is not implementd', assert => {
 //   assert.plan(2)
 //   const api = service({
-//     post: 'hello world!'
+//     post: () => 'hello world!'
 //   })
 //   server((req, res) => {
-//     api(req, res)
-//       .on('error', () => {
-//         assert.equal(res.statusCode, 501)
-//         assert.equal(res.statusMessage , 'Not Implemented')
-//       })
-//       .pipe(res)
-//   }, null, true)
-// })
-//
-// test('should execute value function from defined method', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: () => 'hello world!'
+//     api(req, res).on('error', () => {
+//       assert.equal(res.statusCode, 501)
+//       assert.equal(res.statusMessage , 'Not Implemented')
+//     }).pipe(res)
 //   })
-//   server((req, res) => {
-//     const input = api(req, res)
-//     input.pipe(concat(data => {
-//       assert.equal(data.toString(), 'hello world!')
-//     }))
-//     input.pipe(res)
-//   }, null, true)
 // })
-//
-// test('should not have to return data', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: () => {
-//       assert.ok('service executed')
-//     }
-//   })
-//   server((req, res) => {
-//     api(req, res).pipe(res)
-//   }, null, true)
-// })
-//
+
+
+
+test('should not have to return data', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => {
+      assert.ok('service executed')
+    }
+  })
+  server((req, res) => {
+    api(req, res).pipe(res)
+  }, null, true)
+})
+
 //
 // test('should chunk object returned by defined method', assert => {
 //   assert.plan(1)
