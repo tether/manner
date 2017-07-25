@@ -5,13 +5,29 @@
 const service = require('methodd')
 const status = require('http-errors')
 const salute = require('salute')
+const query = require('qs').parse
+const parse = require('url').parse
+const body = require('request-body')
 
+
+
+/**
+ *
+ */
 
 module.exports = methods => {
   const api = service(salute((req, res) => {
-    const cb = api.has(req.method.toLowerCase(), req.url)
-    const result = cb ? cb(null, null, req, res) : status(501)
-    return result == null ?  '' : result
+    const url = parse(req.url)
+    const cb = api.has(req.method.toLowerCase(), url.pathname)
+    return body(req).then(data => {
+      const result = cb ? cb(query(url.query), data, req, res) : status(501)
+      return result == null ?  '' : result
+    }, err => {
+      // @note we should manage content-type not supported
+      // coming from request-body
+      console.error(err)
+      return status(err.statusCode || 400)
+    })
   }))
   add(api, methods)
   return api
@@ -31,7 +47,7 @@ function add(api, methods) {
     const value = methods[key]
     if (typeof value !== 'object') {
       methods[key] = {
-        '/': (...args) => value(...args)
+        '/': value
       }
     }
   })
