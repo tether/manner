@@ -18,15 +18,43 @@ test('should be a high order function', assert => {
 })
 
 
-test('should return value string from defined method', assert => {
+test('should create HTTP method', assert => {
   assert.plan(1)
   const api = service({
-    get: 'hello world!'
+    get() {
+      return 'hello world'
+    }
   })
   server((req, res) => {
     const input = api(req, res)
     input.pipe(concat(data => {
-      assert.equal(data.toString(), 'hello world!')
+      assert.equal(data.toString(), 'hello world')
+    }))
+    input.pipe(res)
+  }, null, true)
+})
+
+
+test('should create multiple HTTP methods', assert => {
+  assert.plan(2)
+  const api = service({
+    get: {
+      '/': () => 'hello world',
+      '/foo': () => 'hello foo'
+    }
+  })
+  server((req, res) => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
+      assert.equal(data.toString(), 'hello world')
+    }))
+    input.pipe(res)
+  }, null, true)
+  server((req, res) => {
+    req.url = '/foo'
+    const input = api(req, res)
+    input.pipe(concat(data => {
+      assert.equal(data.toString(), 'hello foo')
     }))
     input.pipe(res)
   }, null, true)
@@ -36,31 +64,17 @@ test('should return value string from defined method', assert => {
 test('should send 501 if method is not implementd', assert => {
   assert.plan(2)
   const api = service({
-    post: 'hello world!'
+    post: () => 'hello world!'
   })
   server((req, res) => {
-    api(req, res)
-      .on('error', () => {
-        assert.equal(res.statusCode, 501)
-        assert.equal(res.statusMessage , 'Not Implemented')
-      })
-      .pipe(res)
-  }, null, true)
+    api(req, res).on('error', () => {
+      assert.equal(res.statusCode, 501)
+      assert.equal(res.statusMessage , 'Not Implemented')
+    }).pipe(res)
+  })
 })
 
-test('should execute value function from defined method', assert => {
-  assert.plan(1)
-  const api = service({
-    get: () => 'hello world!'
-  })
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => {
-      assert.equal(data.toString(), 'hello world!')
-    }))
-    input.pipe(res)
-  }, null, true)
-})
+
 
 test('should not have to return data', assert => {
   assert.plan(1)
@@ -121,7 +135,7 @@ test('should chunk promise returned by defined method', assert => {
 test('should pass query parameters to value function', assert => {
   assert.plan(1)
   const api = service({
-    get: (params) => params.first + ' ' + params.last
+    get: (params) =>  params.first + ' ' + params.last
   })
   server((req, res) => {
     const input = api(req, res)
@@ -231,29 +245,41 @@ test('should mixin query parameters with dynamic route params', assert => {
 
 })
 
-//
-// test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
+
+test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
+  assert.plan(2)
+  const message = {
+    foo: 'bar'
+  }
+  const api = service({
+    'post': (params, data) => {
+      assert.deepEqual(params, {
+        label: 'hello'
+      })
+      assert.deepEqual(data, message)
+    }
+  })
+  server((req, res) => {
+    api(req, res).pipe(res)
+  }, {
+    method: 'POST',
+    qs: {
+      label: 'hello'
+    },
+    form: message
+  }, true)
+})
+
+// test('should pass default multi part form data', assert => {
 //   assert.plan(2)
-//   const message = {
-//     foo: 'bar'
-//   }
 //   const api = service({
 //     'post': (params, data) => {
-//       console.log('IT IS BEEN CALLED')
-//       assert.deepEqual(params, {
-//         label: 'hello'
-//       })
-//       console.log('data', data)
-//       assert.deepEqual(data, message)
+//       assert.deepEqual(data, {})
 //     }
 //   })
 //   server((req, res) => {
 //     api(req, res).pipe(res)
 //   }, {
 //     method: 'POST',
-//     qs: {
-//       label: 'hello'
-//     },
-//     form: message
 //   }, true)
 // })
