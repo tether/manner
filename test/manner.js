@@ -18,19 +18,35 @@ test('should be a high order function', assert => {
 })
 
 
-test('should return value string from defined method', assert => {
+test('should create HTTP method', assert => {
   assert.plan(1)
   const api = service({
-    get: 'hello world!'
+    get() {
+      return 'hello world'
+    }
   })
   server((req, res) => {
     const input = api(req, res)
     input.pipe(concat(data => {
-      assert.equal(data.toString(), 'hello world!')
+      assert.equal(data.toString(), 'hello world')
     }))
     input.pipe(res)
   }, null, true)
 })
+
+// test('should return value string from defined method', assert => {
+//   assert.plan(1)
+//   const api = service({
+//     get: 'hello world!'
+//   })
+//   server((req, res) => {
+//     const input = api(req, res)
+//     input.pipe(concat(data => {
+//       assert.equal(data.toString(), 'hello world!')
+//     }))
+//     input.pipe(res)
+//   }, null, true)
+// })
 
 //
 // test('should send 501 if method is not implementd', assert => {
