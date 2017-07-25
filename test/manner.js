@@ -88,25 +88,25 @@ test('should not have to return data', assert => {
   }, null, true)
 })
 
-//
-// test('should chunk object returned by defined method', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: () => ({
-//       name: 'hello'
-//     })
-//   })
-//   server((req, res) => {
-//     const input = api(req, res)
-//     input.pipe(concat(data => {
-//       assert.deepEqual(JSON.parse(data), {
-//         name: 'hello'
-//       })
-//     }))
-//     input.pipe(res)
-//   }, null, true)
-// })
-//
+
+test('should chunk object returned by defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => ({
+      name: 'hello'
+    })
+  })
+  server((req, res) => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
+      assert.deepEqual(JSON.parse(data), {
+        name: 'hello'
+      })
+    }))
+    input.pipe(res)
+  }, null, true)
+})
+
 // test('should chunk streams returned by defined method', assert => {
 //   assert.plan(1)
 //   const api = service({
