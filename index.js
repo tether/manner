@@ -6,11 +6,11 @@ const service = require('methodd')
 const salute = require('salute')
 
 module.exports = methods => {
-  const api = service()
-  add(api, methods)
-  return salute((req, res) => {
+  const api = service(salute((req, res) => {
     return api[req.method.toLowerCase()](req.url)
-  })
+  }))
+  add(api, methods)
+  return api
 }
 
 
