@@ -10,10 +10,14 @@ const parse = require('url').parse
 const body = require('request-body')
 
 
-
 /**
+ * Create web services from an object.
  *
+ * @param {Object} obj
+ * @return {Function}
+ * @api public
  */
+
 
 module.exports = methods => {
   const api = service(salute((req, res) => {

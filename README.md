@@ -1,4 +1,3 @@
-
 # Manner
 
 [![Build Status](https://travis-ci.org/tether/manner.svg?branch=master)](https://travis-ci.org/tether/manner)
@@ -6,12 +5,17 @@
 [![Downloads](https://img.shields.io/npm/dm/manner.svg)](http://npm-stat.com/charts.html?package=manner)
 [![guidelines](https://tether.github.io/contribution-guide/badge-guidelines.svg)](https://github.com/tether/contribution-guide)
 
-This module makes easy to create HTTP methods (GET, POST, OPTIONS, HEAD, DELETE, etc) agnostic to any kind of framework. In addition, Manner automatically:
- * **Decode request body**: Decode form data, x-www-form urlencoded data and more.
- * **Chunk HTTP response**: Return buffers, streams, promises, objects or any type of primitives down the HTTP response as fast as possible.
- * **Manage HTTP status**: Manage the status of your service by sending appropriate status code to the client.
+Quickly create HTTP service from an object. Manner is framework agnostic and can be plugged to any HTTP server. Manner automatically:
+  * **knows the response type**: Return buffers, streams, promises, objects or any type of primitives. Manner knows your data type and send its content as fast as possible down the HTTP response.
+  * **chunk the response content**: Response are encoded using the chunk transfer protocol. Manner is memory efficient and can manage a large amount of concurrent request.
+  * **decode the request data**: Manner intelligently decode the data sent through the request and supports any kind of encoding (application/x-www-form-urlencoded, multipart/form-data, json, etc).
+  * **manage your service status**: Manner knows what's going on with your response and send the appropriate status code whenever a method has not been implemented, a media type is not supported, etc.
+  * **expose methods**: Access your service methods independently from any HTTP request. Perfect to decouple your API from its implementation.
+
 
 <!-- See [features](#features) for more goodness. -->
+
+<!-- Manner is memory efficient and intelligently destroy. -->
 
 ## Usage
 
@@ -24,15 +28,23 @@ const service= require('manner')
 const db = []
 
 const api = service({
-  'get': 'hello world!',
+  'get': {
+    '/': () => 'hello world',
+    '/:name': (query) => `hello ${query.name}`
+  },
   'post': (query, data) => {
     return db.push(data)
   }
 })
 
+// HTTP service
 http.createServer((req, res) => {
   api(req, res).pipe(res)
 })
+
+// Programmatic service
+api.get('/foo')
+// => hello foo
 ```
 
 ## Installation
@@ -43,9 +55,6 @@ npm install manner --save
 
 [![NPM](https://nodei.co/npm/manner.png)](https://nodei.co/npm/manner/)
 
-<!-- ## Features
-
- * Manage authorization requests: Create a custom `auth` method to manage any type of authorization type when present in a POST request. -->
 
 ## Question
 
