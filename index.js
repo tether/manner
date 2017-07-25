@@ -21,7 +21,8 @@ module.exports = methods => {
     const cb = api.has(req.method.toLowerCase(), url.pathname)
     return body(req).then(data => {
       const result = cb ? cb(query(url.query), data, req, res) : status(501)
-      return result == null ?  '' : result
+      // stream salute is closed when res end
+      return result == null ?  res.end() : result
     }, err => {
       // @note we should manage content-type not supported
       // coming from request-body
