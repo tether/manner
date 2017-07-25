@@ -61,18 +61,18 @@ test('should create multiple HTTP methods', assert => {
 })
 
 
-// test('should send 501 if method is not implementd', assert => {
-//   assert.plan(2)
-//   const api = service({
-//     post: () => 'hello world!'
-//   })
-//   server((req, res) => {
-//     api(req, res).on('error', () => {
-//       assert.equal(res.statusCode, 501)
-//       assert.equal(res.statusMessage , 'Not Implemented')
-//     }).pipe(res)
-//   })
-// })
+test('should send 501 if method is not implementd', assert => {
+  assert.plan(2)
+  const api = service({
+    post: () => 'hello world!'
+  })
+  server((req, res) => {
+    api(req, res).on('error', () => {
+      assert.equal(res.statusCode, 501)
+      assert.equal(res.statusMessage , 'Not Implemented')
+    }).pipe(res)
+  })
+})
 
 
 
@@ -107,31 +107,31 @@ test('should chunk object returned by defined method', assert => {
   }, null, true)
 })
 
-// test('should chunk streams returned by defined method', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: () => fs.createReadStream(__dirname + '/manner.txt')
-//   })
-//   server((req, res) => {
-//     const input = api(req, res)
-//     input.pipe(concat(data => assert.equal(data.toString(), 'hello world\n')))
-//     input.pipe(res)
-//   }, null, true)
-// })
-//
-// test('should chunk promise returned by defined method', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: () => new Promise(resolve => resolve('hello'))
-//   })
-//   server((req, res) => {
-//     const input = api(req, res)
-//     input.pipe(concat(data => assert.equal(data.toString(), 'hello')))
-//     input.pipe(res)
-//   }, null, true)
-// })
-//
-//
+test('should chunk streams returned by defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => fs.createReadStream(__dirname + '/manner.txt')
+  })
+  server((req, res) => {
+    const input = api(req, res)
+    input.pipe(concat(data => assert.equal(data.toString(), 'hello world\n')))
+    input.pipe(res)
+  }, null, true)
+})
+
+test('should chunk promise returned by defined method', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => new Promise(resolve => resolve('hello'))
+  })
+  server((req, res) => {
+    const input = api(req, res)
+    input.pipe(concat(data => assert.equal(data.toString(), 'hello')))
+    input.pipe(res)
+  }, null, true)
+})
+
+
 // test('should pass query parameters to value function', assert => {
 //   assert.plan(1)
 //   const api = service({
@@ -151,20 +151,20 @@ test('should chunk object returned by defined method', assert => {
 //   }, true)
 // })
 //
-//
-// test('should pass request and response', assert => {
-//   assert.plan(2)
-//   server((req, res) => {
-//     service({
-//       'get': (params, data, request, response) => {
-//         assert.equal(request, req)
-//         assert.equal(response, res)
-//       }
-//     })(req, res).pipe(res)
-//   }, {}, true)
-// })
-//
-//
+
+test('should pass request and response', assert => {
+  assert.plan(2)
+  server((req, res) => {
+    service({
+      'get': (params, data, request, response) => {
+        assert.equal(request, req)
+        assert.equal(response, res)
+      }
+    })(req, res).pipe(res)
+  }, {}, true)
+})
+
+
 // test('should pass empty query object to value function when request does not have any query parameters', assert => {
 //   assert.plan(2)
 //   const api = service({
@@ -177,7 +177,7 @@ test('should chunk object returned by defined method', assert => {
 //     api(req, res).pipe(res)
 //   }, null, true)
 // })
-//
+
 // test('get accept dynamic routes', assert => {
 //   assert.plan(1)
 //   const request = {

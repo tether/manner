@@ -7,16 +7,10 @@ const status = require('http-errors')
 const salute = require('salute')
 
 
-/**
- * Not Implemented callback.
- */
-
-const notimplemented = status(501)
-
-
 module.exports = methods => {
   const api = service(salute((req, res) => {
-    const result = api[req.method.toLowerCase()](req.url)
+    const cb = api.has(req.method.toLowerCase(), req.url)
+    const result = cb ? cb(null, null, req, res) : status(501)
     return result == null ?  '' : result
   }))
   add(api, methods)
@@ -24,6 +18,13 @@ module.exports = methods => {
 }
 
 
+/**
+ * Add routes.
+ *
+ * @param {Function} api
+ * @param {Object} methods
+ * @api private
+ */
 
 function add(api, methods) {
   Object.keys(methods).map(key => {
