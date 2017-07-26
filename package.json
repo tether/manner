@@ -1,6 +1,6 @@
 {
   "name": "manner",
-  "version": "3.0.0",
+  "version": "2.4.0",
   "description": "HTTP methods as a service",
   "main": "index.js",
   "scripts": {
