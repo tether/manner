@@ -24,7 +24,9 @@ module.exports = methods => {
     const url = parse(req.url)
     const cb = api.has(req.method.toLowerCase(), url.pathname)
     return body(req).then(data => {
-      const result = cb ? cb(query(url.query), data, req, res) : status(501)
+      const payload = req.query
+      const params = Object.assign(query(url.query), typeof payload === 'object' ? payload : {})
+      const result = cb ? cb(params, data, req, res) : status(501)
       // stream salute is closed when res end
       return result == null ?  res.end() : result
     }, err => {

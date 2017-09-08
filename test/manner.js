@@ -283,3 +283,24 @@ test('should decode data passed in the body of a request and pass it to the appr
 //     method: 'POST',
 //   }, true)
 // })
+
+
+test('should mixin request query object with service query', assert => {
+  assert.plan(2)
+  const api = service({
+    get(query) {
+      assert.equal(query.name, 'olivier')
+      assert.equal(query.age, 30)
+    }
+  })
+  server((req, res) => {
+    req.query = {
+      age: 30
+    }
+    api(req, res).pipe(res)
+  }, {
+    qs: {
+      name: 'olivier'
+    }
+  }, true)
+})
