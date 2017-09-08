@@ -5,8 +5,9 @@
 [![Downloads](https://img.shields.io/npm/dm/manner.svg)](http://npm-stat.com/charts.html?package=manner)
 [![guidelines](https://tether.github.io/contribution-guide/badge-guidelines.svg)](https://github.com/tether/contribution-guide)
 
-Quickly create HTTP service from an object. Manner is framework agnostic and can be plugged to any HTTP server. Manner automatically:
-  * **knows the response type**: Return buffers, streams, promises, objects or any type of primitives. Manner knows your data type and send its content as fast as possible down the HTTP response.
+Quickly create HTTP service from an object. Manner is framework agnostic and can be plugged to any HTTP server.
+
+  * **know the response type**: Return buffers, streams, promises, objects or any type of primitives. Manner knows your data type and send its content as fast as possible down the HTTP response.
   * **chunk the response content**: Response are encoded using the chunk transfer protocol. Manner is memory efficient and can manage a large amount of concurrent request.
   * **decode the request data**: Manner intelligently decode the data sent through the request and supports any kind of encoding (application/x-www-form-urlencoded, multipart/form-data, json, etc).
   * **manage your service status**: Manner knows what's going on with your response and send the appropriate status code whenever a method has not been implemented, a media type is not supported, etc.
@@ -30,7 +31,7 @@ const db = []
 const api = service({
   'get': {
     '/': () => 'hello world',
-    '/:name': (query) => `hello ${query.name}`
+    '/:name': (query) => `hello ${query.name}!`
   },
   'post': (query, data) => {
     return db.push(data)
@@ -43,8 +44,24 @@ http.createServer((req, res) => {
 })
 
 // Programmatic service
-api.get('/foo')
-// => hello foo
+api.get('/world')
+// => hello world!
+```
+
+and programmaticaly add or call routes
+
+```js
+
+const api = service({
+  'get': () => 'hello world'
+})
+
+api.get('/:name', query => {
+  return `hello ${query.name}!`
+})
+
+api.get('/world')
+// => hello world!
 ```
 
 ## Installation
