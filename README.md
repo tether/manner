@@ -72,6 +72,9 @@ npm install manner --save
 
 [![NPM](https://nodei.co/npm/manner.png)](https://nodei.co/npm/manner/)
 
+<!-- ## features
+
+  * mixin request query payload  -->
 
 ## Question
 

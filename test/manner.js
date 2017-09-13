@@ -304,3 +304,5 @@ test('should mixin request query object with service query', assert => {
     }
   }, true)
 })
+
+test('should accept relative path')

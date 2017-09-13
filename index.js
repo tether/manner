@@ -8,20 +8,21 @@ const salute = require('salute')
 const query = require('qs').parse
 const parse = require('url').parse
 const body = require('request-body')
-
+const join = require('path').join
 
 /**
  * Create web services from an object.
  *
  * @param {Object} obj
+ * @param {String} relative (relative url path)
  * @return {Function}
  * @api public
  */
 
 
-module.exports = methods => {
+module.exports = (methods, relative = '') => {
   const api = service(salute((req, res) => {
-    const url = parse(req.url)
+    const url = parse(join('/', req.url.substring(relative.length)))
     const cb = api.has(req.method.toLowerCase(), url.pathname)
     return body(req).then(data => {
       const payload = req.query
