@@ -23,6 +23,7 @@ const debug = require('debug')('manner')
 
 
 module.exports = (methods, relative = '') => {
+  debug('Initialize endpoint %s', relative)
   const api = service(salute((req, res) => {
     const method = req.method.toLowerCase()
     const url = parse(join('/', req.url.substring(relative.length)))
