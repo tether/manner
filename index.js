@@ -9,6 +9,8 @@ const query = require('qs').parse
 const parse = require('url').parse
 const body = require('request-body')
 const join = require('path').join
+const debug = require('debug')('manner')
+
 
 /**
  * Create web services from an object.
@@ -22,8 +24,11 @@ const join = require('path').join
 
 module.exports = (methods, relative = '') => {
   const api = service(salute((req, res) => {
+    const method = req.method.toLowerCase()
     const url = parse(join('/', req.url.substring(relative.length)))
-    const cb = api.has(req.method.toLowerCase(), url.pathname)
+    const pathname = url.pathname
+    const cb = api.has(method, pathname)
+    debug(`Serve endpoint [%s] %s`, method.toUpperCase(), pathname, !!cb)
     return body(req).then(data => {
       const payload = req.query
       const params = Object.assign(query(url.query), typeof payload === 'object' ? payload : {})
@@ -58,6 +63,7 @@ function add(api, methods) {
         '/': value
       }
     }
+    debug('Create endpoint %s', key)
   })
   api.add(methods)
 }

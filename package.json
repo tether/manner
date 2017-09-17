@@ -1,10 +1,10 @@
 {
   "name": "manner",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "HTTP methods as a service",
   "main": "index.js",
   "scripts": {
-    "test": "tape test/*.js",
+    "test": "DEBUG=* tape test/*.js",
     "example": "node example/index.js"
   },
   "repository": {
@@ -30,6 +30,7 @@
     "tape": "*"
   },
   "dependencies": {
+    "debug": "^3.0.1",
     "http-errors": "^1.6.2",
     "methodd": "^1.0.1",
     "qs": "^6.5.0",
