@@ -43,7 +43,7 @@ module.exports = (methods, relative = '') => {
       return status(err.statusCode || 400)
     })
   }))
-  add(api, methods)
+  add(api, methods, relative)
   return api
 }
 
@@ -53,10 +53,11 @@ module.exports = (methods, relative = '') => {
  *
  * @param {Function} api
  * @param {Object} methods
+ * @param {String} relative (used for logs only)
  * @api private
  */
 
-function add(api, methods) {
+function add(api, methods, relative) {
   Object.keys(methods).map(key => {
     const value = methods[key]
     if (typeof value !== 'object') {
@@ -64,7 +65,7 @@ function add(api, methods) {
         '/': value
       }
     }
-    debug('Create endpoint %s', key)
+    debug('Create endpoint [%s] %s', key.toUpperCase(), relative)
   })
   api.add(methods)
 }
