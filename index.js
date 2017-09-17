@@ -23,13 +23,13 @@ const debug = require('debug')('manner')
 
 
 module.exports = (methods, relative = '') => {
-  debug('Initialize endpoint %s', relative)
+  console.log('Initialize endpoint %s', relative)
   const api = service(salute((req, res) => {
     const method = req.method.toLowerCase()
     const url = parse(join('/', req.url.substring(relative.length)))
     const pathname = url.pathname
     const cb = api.has(method, pathname)
-    debug(`Serve endpoint [%s] %s`, method.toUpperCase(), pathname, !!cb)
+    console.log(`Serve endpoint [%s] %s`, method.toUpperCase(), pathname, !!cb)
     return body(req).then(data => {
       const payload = req.query
       const params = Object.assign(query(url.query), typeof payload === 'object' ? payload : {})
@@ -65,7 +65,7 @@ function add(api, methods, relative) {
         '/': value
       }
     }
-    debug('Create endpoint [%s] %s', key.toUpperCase(), relative)
+    console.log('Create endpoint [%s] %s', key.toUpperCase(), relative)
   })
   api.add(methods)
 }
