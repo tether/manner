@@ -1,6 +1,6 @@
 {
   "name": "manner",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "HTTP methods as a service",
   "main": "index.js",
   "scripts": {
@@ -32,7 +32,7 @@
   "dependencies": {
     "debug": "^3.0.1",
     "http-errors": "^1.6.2",
-    "methodd": "^1.0.1",
+    "methodd": "^1.0.2",
     "qs": "^6.5.0",
     "request-body": "^1.0.2",
     "salute": "^1.1.1"
