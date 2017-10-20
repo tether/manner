@@ -18,15 +18,16 @@ const isokay = require('isokay')
  * Create web services from an object.
  *
  * @param {Object} obj
- * @param {Object} options
+ * @param {Object} schema
  * @return {Function}
  * @api public
  */
 
 
-module.exports = (methods, options = {}) => {
-  const conf = passover(options)
-  const relative = conf('relative') || ''
+module.exports = (methods, schema = {}) => {
+  const options = passover(schema)
+  const relative = options('relative') || ''
+  
   debug('Initialize endpoint %s', relative)
   const api = service(salute((req, res) => {
     const method = req.method.toLowerCase()
@@ -36,7 +37,7 @@ module.exports = (methods, options = {}) => {
     debug(`Serve endpoint [%s] %s`, method.toUpperCase(), pathname, !!cb)
 
     if (cb) {
-      const schema = conf(method, cb.path)
+      const schema = options(method, cb.path)
       const payload = req.query
       const parameters = Object.assign(
         query(url.query),
