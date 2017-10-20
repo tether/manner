@@ -29,6 +29,7 @@ module.exports = (methods, relative = '') => {
     const url = parse(join('/', req.url.substring(relative.length)))
     const pathname = url.pathname
     const cb = api.has(method, pathname)
+    console.log(cb, pathname)
     debug(`Serve endpoint [%s] %s`, method.toUpperCase(), pathname, !!cb)
     return body(req).then(data => {
       const payload = req.query

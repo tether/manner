@@ -14,6 +14,7 @@ const user = service({
   'post': (query, data) => {
     // file is send as multipart form data in file field
     const file = data['file']
+    console.log(file)
     file.pipe(fs.createWriteStream('./file.png'))
     return new Promise(resolve => {
       file.on('end', () => resolve('it worked'))
