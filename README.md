@@ -12,6 +12,7 @@ Quickly create HTTP service from an object. Manner is framework agnostic and can
   * **decode the request data**: Manner intelligently decode the data sent through the request and supports any kind of encoding (application/x-www-form-urlencoded, multipart/form-data, json, etc).
   * **manage your service status**: Manner knows what's going on with your response and send the appropriate status code whenever a method has not been implemented, a media type is not supported, etc.
   * **expose methods**: Access your service methods independently from any HTTP request. Perfect to decouple your API from its implementation.
+  * **schema**: Apply schema to annotate and validate your service(s)
 
 
 <!-- See [features](#features) for more goodness. -->
