@@ -31,7 +31,7 @@ const db = []
 
 const api = service({
   'get': {
-    '/': () => 'hello world',
+    '/': () => 'hello you',
     '/earth': '/world',
     '/:name': (query) => `hello ${query.name}!`
   },
