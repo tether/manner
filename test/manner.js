@@ -306,3 +306,101 @@ test('should mixin request query object with service query', assert => {
 })
 
 test('should accept relative path')
+
+
+test('should define schema for query parameters', assert => {
+  assert.plan(1)
+  const schema = {
+    get: {
+      '/': {
+        params: {
+          name: {
+            transform(value) {
+              return 'hello '+ value
+            }
+          }
+        }
+      }
+    }
+  }
+  const api = service({
+    get(query) {
+      assert.equal(query.name, 'hello olivier')
+    }
+  }, schema)
+
+
+  server((req, res) => {
+    api(req, res).pipe(res)
+  }, {
+    qs: {
+      name: 'olivier'
+    }
+  }, true)
+})
+
+
+test('should define schema for request body data', assert => {
+  assert.plan(1)
+  const schema = {
+    get: {
+      '/': {
+        data: {
+          name: {
+            transform(value) {
+              return 'hello '+ value
+            }
+          }
+        }
+      }
+    }
+  }
+  const api = service({
+    get(query, data) {
+      assert.equal(data.name, 'hello olivier')
+    }
+  }, schema)
+
+
+  server((req, res) => {
+    api(req, res).pipe(res)
+  }, {
+    form: {
+      name: 'olivier'
+    }
+  }, true)
+})
+
+test('should retur error if field defined by schema is missing', assert => {
+  assert.plan(1)
+  const schema = {
+    get: {
+      '/': {
+        data: {
+          name: {
+            required: true
+          }
+        }
+      }
+    }
+  }
+  const api = service({
+    get(query, data) {
+
+    }
+  }, schema)
+
+
+  server((req, res) => {
+    const stream = api(req, res)
+    stream.on('end', () => {
+      // @note we should test the payload as well
+      assert.equal(res.statusCode, 400)
+    })
+    stream.pipe(res)
+  }, {
+    form: {
+      foo: 'bar'
+    }
+  }, true)
+})

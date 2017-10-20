@@ -10,39 +10,58 @@ const parse = require('url').parse
 const body = require('request-body')
 const join = require('path').join
 const debug = require('debug')('manner')
+const passover = require('passover')
+const isokay = require('isokay')
 
 
 /**
  * Create web services from an object.
  *
  * @param {Object} obj
- * @param {String} relative (relative url path)
+ * @param {Object} options
  * @return {Function}
  * @api public
  */
 
 
-module.exports = (methods, relative = '') => {
+module.exports = (methods, options = {}) => {
+  const conf = passover(options)
+  const relative = conf('relative') || ''
   debug('Initialize endpoint %s', relative)
   const api = service(salute((req, res) => {
     const method = req.method.toLowerCase()
     const url = parse(join('/', req.url.substring(relative.length)))
     const pathname = url.pathname
     const cb = api.has(method, pathname)
-    console.log(cb, pathname)
     debug(`Serve endpoint [%s] %s`, method.toUpperCase(), pathname, !!cb)
-    return body(req).then(data => {
+
+    if (cb) {
+      const schema = conf(method, cb.path)
       const payload = req.query
-      const params = Object.assign(query(url.query), typeof payload === 'object' ? payload : {})
-      const result = cb ? cb(params, data, req, res) : status(501)
-      // stream salute is closed when res end
-      return result == null ?  res.end() : result
-    }, err => {
-      // @note we should manage content-type not supported
-      // coming from request-body
-      console.error(err)
-      return status(err.statusCode || 400)
-    })
+      const parameters = Object.assign(
+        query(url.query),
+        typeof payload === 'object'
+          ? payload
+          : {}
+      )
+
+      return Promise.all([
+        isokay(parameters, schema && schema.params),
+        body(req).then(data => isokay(data, schema && schema.data))
+      ]).then(([params, data]) => {
+        return cb(params, data, req, res) || res.end()
+      }, err => {
+        // @note we should send error payload with it
+        return status(err.statusCode || 400)
+      })
+
+
+    } else {
+      return status(501)
+    }
+
+
+
   }))
   add(api, methods, relative)
   return api

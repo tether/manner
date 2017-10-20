@@ -1,10 +1,10 @@
 {
   "name": "manner",
-  "version": "2.7.4",
+  "version": "3.0.0",
   "description": "HTTP methods as a service",
   "main": "index.js",
   "scripts": {
-    "test": "DEBUG=* tape test/*.js",
+    "test": "tape test/*.js",
     "example-routes": "node examples/routes.js",
     "example-upload": "node examples/upload.js"
   },
@@ -33,7 +33,9 @@
   "dependencies": {
     "debug": "^3.0.1",
     "http-errors": "^1.6.2",
+    "isokay": "^1.0.1",
     "methodd": "^1.1.0",
+    "passover": "^1.0.0",
     "qs": "^6.5.0",
     "request-body": "^1.2.0",
     "salute": "^1.1.1"
