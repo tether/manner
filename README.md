@@ -48,6 +48,9 @@ http.createServer((req, res) => {
 // Programmatic service
 api.get('/world')
 // => hello world!
+
+api.get('/earth')
+// => hello world!
 ```
 
 and programmaticaly add or call routes
