@@ -46,8 +46,11 @@ http.createServer((req, res) => {
 })
 
 // Programmatic service
-api.get('/world')
-// => hello world!
+api.get('/')
+// => hello you
+
+api.get('/bob')
+// => hello bob!
 
 api.get('/earth')
 // => hello world!
