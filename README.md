@@ -32,6 +32,7 @@ const db = []
 const api = service({
   'get': {
     '/': () => 'hello world',
+    '/earth': '/world',
     '/:name': (query) => `hello ${query.name}!`
   },
   'post': (query, data) => {
