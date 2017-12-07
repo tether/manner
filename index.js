@@ -47,13 +47,16 @@ module.exports = (methods, schema = {}) => {
           : {}
       )
 
-      if (type) res.setHeader('Content-Type', salute.mime(type))
+      if (type) {
+        console.log('TYPE', type)
+        res.setHeader('Content-Type', salute.mime(type))
+      }
 
       return Promise.all([
         isokay(parameters, schema && schema.params),
         body(req).then(data => isokay(data, schema && schema.data))
       ]).then(([params, data]) => {
-        return cb(params, data, req, res) || res.end()
+        return cb(params, data, req, res)
       }, err => {
         // @note we should send error payload with it
         return status(err.statusCode || 400)
