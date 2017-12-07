@@ -68,8 +68,8 @@ api.get('/:name', query => {
   return `hello ${query.name}!`
 })
 
-api.get('/world')
-// => hello world!
+api.get('/bob')
+// => hello bob!
 ```
 
 ## Installation
