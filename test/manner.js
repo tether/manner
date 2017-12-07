@@ -406,27 +406,27 @@ test('should retur error if field defined by schema is missing', assert => {
 })
 
 
-// test('should set content type from schema', assert => {
-//   assert.plan(1)
-//   const schema = {
-//     get: {
-//       '/': {
-//         type: 'csv'
-//       }
-//     }
-//   }
-//   const api = service({
-//     get(query, data) {
-//
-//     }
-//   }, schema)
-//
-//
-//   server((req, res) => {
-//     const stream = api(req, res)
-//     stream.on('end', () => {
-//       assert.equal(res.getHeader('Content-Type'), 'text/csv; charset=utf-8')
-//     })
-//     stream.pipe(res)
-//   }, null, true)
-// })
+test('should set content type from schema', assert => {
+  assert.plan(1)
+  const schema = {
+    get: {
+      '/': {
+        type: 'csv'
+      }
+    }
+  }
+  const api = service({
+    get(query, data) {
+
+    }
+  }, schema)
+
+
+  server((req, res) => {
+    const stream = api(req, res)
+    stream.on('end', () => {
+      assert.equal(res.getHeader('Content-Type'), 'text/csv; charset=utf-8')
+    })
+    stream.pipe(res)
+  }, null, true)
+})
