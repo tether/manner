@@ -19,6 +19,9 @@ const user = service({
     '/foo': '/bar',
     '/:name': (query) => {
       return query
+    },
+    '/error': () => {
+      throw new Error('this is some error')
     }
   },
   'post': (query, data) => {

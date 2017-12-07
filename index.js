@@ -47,10 +47,7 @@ module.exports = (methods, schema = {}) => {
           : {}
       )
 
-      if (type) {
-        console.log('TYPE', type)
-        res.setHeader('Content-Type', salute.mime(type))
-      }
+      if (type) res.setHeader('Content-Type', salute.mime(type))
 
       return Promise.all([
         isokay(parameters, schema && schema.params),
