@@ -406,7 +406,8 @@ test('should return error if field defined by schema is missing', assert => {
 })
 
 
-test('should set content type from schema', /*assert => {
+test('should set content type from schema')
+/*assert => {
   assert.plan(1)
   const schema = {
     get: {
@@ -429,4 +430,4 @@ test('should set content type from schema', /*assert => {
     })
     stream.pipe(res)
   }, null, true)
-}*/)
+}*/
