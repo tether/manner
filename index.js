@@ -50,8 +50,8 @@ module.exports = (methods, schema = {}) => {
       if (type) res.setHeader('Content-Type', salute.mime(type))
 
       return Promise.all([
-        isokay(parameters, schema && schema.params),
-        body(req).then(data => isokay(data, schema && schema.data))
+        isokay(parameters, schema && schema.query),
+        body(req).then(data => isokay(data, schema && schema.body))
       ]).then(([params, data]) => {
         return cb(params, data, req, res)
       }, err => {
