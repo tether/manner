@@ -53,22 +53,35 @@ module.exports = (methods, schema = {}) => {
         isokay(parameters, schema && schema.query),
         body(req).then(data => isokay(data, schema && schema.body))
       ]).then(([params, data]) => {
-        return cb(params, data, req, res)
+        var middleware = []
+        if (schema && schema.middleware) middleware = middleware.concat(schema.middleware)
+        return middlewares([
+          ...middleware,
+          (query, body) => cb(query, body, req, res)
+        ], params, data, req, res)
+        //return cb(params, data, req, res)
       }, err => {
         // @note we should send error payload with it
         return status(err.statusCode || 400)
       })
-
-
     } else {
       return status(501)
     }
-
-
-
   }))
   add(api, methods, relative)
   return api
+}
+
+
+function middlewares(array = [], params, data, req, res) {
+  var result
+  var index = -1
+  var next = function (query, body) {
+    const cb = array[++index]
+    if (cb) result = cb(query, body, next, req, res)
+  }
+  next(params, data)
+  return result
 }
 
 

@@ -270,21 +270,21 @@ test('should decode data passed in the body of a request and pass it to the appr
   }, true)
 })
 
-// test('should pass default multi part form data', assert => {
-//   assert.plan(2)
-//   const api = service({
-//     'post': (params, data) => {
-//       assert.deepEqual(data, {})
-//     }
-//   })
-//   server((req, res) => {
-//     api(req, res).pipe(res)
-//   }, {
-//     method: 'POST',
-//   }, true)
-// })
-
-
+// // test('should pass default multi part form data', assert => {
+// //   assert.plan(2)
+// //   const api = service({
+// //     'post': (params, data) => {
+// //       assert.deepEqual(data, {})
+// //     }
+// //   })
+// //   server((req, res) => {
+// //     api(req, res).pipe(res)
+// //   }, {
+// //     method: 'POST',
+// //   }, true)
+// // })
+//
+//
 test('should mixin request query object with service query', assert => {
   assert.plan(2)
   const api = service({
@@ -403,6 +403,28 @@ test('should return error if field defined by schema is missing', assert => {
       foo: 'bar'
     }
   }, true)
+})
+
+test('should apply one middleware', assert => {
+  assert.plan(1)
+  const schema = {
+    get: {
+      '/': {
+        middleware: [
+          (query, body, next) => next({name: 'bob'})
+        ]
+      }
+    }
+  }
+  const api = service({
+    get(query) {
+      assert.equal(query.name, 'bob')
+    }
+  }, schema)
+
+  server((req, res) => {
+    api(req, res).pipe(res)
+  }, null, true)
 })
 
 
