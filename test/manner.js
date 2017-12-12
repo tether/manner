@@ -427,6 +427,30 @@ test('should apply one middleware', assert => {
   }, null, true)
 })
 
+test('should chain middlewares', assert => {
+  assert.plan(1)
+  const schema = {
+    get: {
+      '/': {
+        middleware: [
+          (query, body, next) => next({name: 'bob'}),
+          (query, body, next) => next({label: 'hello ' + query.name})
+        ]
+      }
+    }
+  }
+  const api = service({
+    get(query) {
+      assert.equal(query.label, 'hello bob')
+    }
+  }, schema)
+
+  server((req, res) => {
+    api(req, res).pipe(res)
+  }, null, true)
+})
+
+
 
 test('should set content type from schema')
 /*assert => {
