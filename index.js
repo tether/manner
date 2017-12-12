@@ -73,15 +73,25 @@ module.exports = (methods, schema = {}) => {
 }
 
 
+/**
+ * Apply middlewares.
+ *
+ * @param {Array} array
+ * @param {Object} params
+ * @param {Object} data
+ * @param {Object} req
+ * @param {Object} res
+ * @return {Any}
+ * @api private
+ */
+
 function middlewares(array = [], params, data, req, res) {
-  var result
   var index = -1
   var next = function (query, body) {
     const cb = array[++index]
-    if (cb) result = cb(query, body, next, req, res)
+    if (cb) return cb(query, body, next, req, res)
   }
-  next(params, data)
-  return result
+  return next(params, data)
 }
 
 

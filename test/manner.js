@@ -452,6 +452,36 @@ test('should chain middlewares', assert => {
 
 
 
+test('should chain middlewares and return result', assert => {
+  assert.plan(1)
+  const schema = {
+    get: {
+      '/': {
+        middleware: [
+          (query, body, next) => next({name: 'bob'}),
+          (query, body, next) => next({label: 'hello ' + query.name})
+        ]
+      }
+    }
+  }
+  const api = service({
+    get(query) {
+      return query
+    }
+  }, schema)
+
+  server((req, res) => {
+    const input = api(req, res)
+    input.pipe(concat(data => {
+      assert.deepEqual(JSON.parse(data), {
+        label: 'hello bob'
+      })
+    }))
+    input.pipe(res)
+  }, null, true)
+})
+
+
 test('should set content type from schema')
 /*assert => {
   assert.plan(1)
