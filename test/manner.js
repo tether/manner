@@ -47,3 +47,21 @@ test('should call service from a service object', assert => {
   })
   assert.equal(api.get('/'), 'hello world')
 })
+
+test('should define multiple services', assert => {
+  assert.plan(3)
+  const api = service({
+    get: {
+      '/': {
+        service() {
+          return 'get hello world'
+        }
+      },
+      '/john': () => 'get john'
+    },
+    post: () => 'post hello world'
+  })
+  assert.equal(api.get('/'), 'get hello world')
+  assert.equal(api.get('/john'), 'get john')
+  assert.equal(api.post('/'), 'post hello world')
+})

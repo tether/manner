@@ -42,7 +42,10 @@ function parse (services) {
       result[name] = transform('/', service)
     } else {
       Object.keys(service).map(path => {
-        result[name] = transform(path, service[path])
+        result[name] = {
+          ...result[name],
+          ...transform(path, service[path])
+        }
       })
     }
   })
