@@ -161,7 +161,7 @@ test('should mixin request query parameter for compatibility with third party fr
 })
 
 
-test('should work with POST request', assert => {
+test('should work with empty POST request', assert => {
   assert.plan(1)
   const api = service({
     post: (data) =>  data
@@ -172,6 +172,38 @@ test('should work with POST request', assert => {
   }, {
     method: 'POST'
   })
+})
+
+
+test('should work with POST request and body', assert => {
+  assert.plan(1)
+  const api = service({
+    post: (data) =>  data
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {
+      foo: 'bar'
+    })
+  }, {
+    method: 'POST',
+    form: {
+      foo: 'bar'
+    }
+  })
+})
+
+
+test('should pass request and response', assert => {
+  assert.plan(2)
+  http((req, res) => {
+    service({
+      'get': (data, request, response) => {
+        assert.equal(request, req)
+        assert.equal(response, res)
+      }
+    })(req, res).pipe(res)
+  }, null, true)
 })
 
 
@@ -186,10 +218,8 @@ test('should work with POST request', assert => {
 
 function server (api, cb, query, mixin = {}) {
   http((req, res) => {
-    const input = api({
-      ...req,
-      ...mixin
-    }, res)
+    req.query = mixin.query
+    const input = api(req, res)
     input.pipe(concat(data => {
       cb(data, res)
     }))

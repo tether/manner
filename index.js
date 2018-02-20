@@ -72,14 +72,16 @@ function status (res, err) {
  */
 
 function data (params, req) {
-  return new Promise((resolve, reject) => {
+  return new Promise(resolve => {
     const length = req.headers['content-length']
     if (length && length !== '0') {
-      resolve(body(req).then(data => ({
-        ...params,
-        ...data,
-        ...req.query
-      })))
+      resolve(body(req).then(val => {
+        return {
+          ...params,
+          ...val,
+          ...req.query
+        }
+      }))
     } else {
       resolve({
         ...params,
