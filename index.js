@@ -26,7 +26,8 @@ module.exports = (obj, relative = '') => {
       const data = query(url.query)
       return morph(
         service({
-          ...data
+          ...data,
+          ...req.query
         }).then(null, reason => status(res, reason))
       )
     } else {

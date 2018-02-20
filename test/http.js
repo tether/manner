@@ -136,6 +136,30 @@ test('should pass query parameters to value function', assert => {
   })
 })
 
+test('should mixin request query parameter for compatibility with other framework', assert => {
+  assert.plan(1)
+  const api = service({
+    get: (data) =>  data
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data),{
+      first: 'jane',
+      last: 'doe'
+    })
+  }, {
+    qs: {
+      first: 'john',
+      last: 'doe'
+    }
+  }, {
+    query: {
+      first: 'jane'
+    }
+  })
+})
+
+
 
 /**
  * Create HTTP server.
@@ -145,9 +169,12 @@ test('should pass query parameters to value function', assert => {
  * @api private
  */
 
-function server (api, cb, query) {
+function server (api, cb, query, mixin = {}) {
   http((req, res) => {
-    const input = api(req, res)
+    const input = api({
+      ...req,
+      ...mixin
+    }, res)
     input.pipe(concat(data => {
       cb(data, res)
     }))
