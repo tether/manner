@@ -117,6 +117,25 @@ test('should send object through HTTP response', assert => {
   })
 })
 
+test('should pass query parameters to value function', assert => {
+  assert.plan(1)
+  const api = service({
+    get: (data) =>  data
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data),{
+      first: 'john',
+      last: 'doe'
+    })
+  }, {
+    qs: {
+      first: 'john',
+      last: 'doe'
+    }
+  })
+})
+
 
 /**
  * Create HTTP server.
@@ -126,12 +145,12 @@ test('should send object through HTTP response', assert => {
  * @api private
  */
 
-function server (api, cb) {
+function server (api, cb, query) {
   http((req, res) => {
     const input = api(req, res)
     input.pipe(concat(data => {
       cb(data, res)
     }))
     input.pipe(res)
-  }, null, true)
+  }, query || null, true)
 }
