@@ -55,7 +55,9 @@ function transform (services) {
             }
           }
         } else {
-
+          result[name] = {
+            [path]: service[path]
+          }
         }
       })
     }

@@ -32,3 +32,18 @@ test('should call resource service with explicit path', assert => {
   })
   assert.equal(api.get('/'), 'hello world')
 })
+
+
+test('should call resource service with explicit function as service', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        service() {
+          return 'hello world'
+        }
+      }
+    }
+  })
+  assert.equal(api.get('/'), 'hello world')
+})
