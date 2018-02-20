@@ -100,7 +100,7 @@ test('should accept custom routes', assert => {
 
 
 test('should automatically generate options', assert => {
-  assert.plan(1)
+  assert.plan(2)
   const api = service({
     get: {
       '/': {
@@ -110,5 +110,7 @@ test('should automatically generate options', assert => {
       }
     }
   })
-  assert.equal(typeof api.options('/'), 'object')
+  const obj = api.options('/')
+  assert.equal(typeof obj, 'object')
+  assert.deepEqual(obj['Access-Control-Allow-Methods'], 'GET, OPTIONS')
 })
