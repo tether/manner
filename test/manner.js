@@ -159,3 +159,17 @@ test('should apply and reject schema', assert => {
     assert.equal(reason.message, 'field name is missing')
   })
 })
+
+
+test('should call a service and pass manner core as its scope', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': function () {
+        return this.get('/hello')
+      },
+      '/hello': () => 'hello world'
+    }
+  })
+  api.get('/').then(val => assert.equal(val, 'hello world'))
+})

@@ -3,7 +3,10 @@
  */
 
 const compile = require('./lib/compile')
+const parse = require('url').parse
+const join = require('path').join
 const Readable = require('stream').Readable
+
 
 /**
  * Create web resource.
@@ -13,12 +16,32 @@ const Readable = require('stream').Readable
  * @api public
  */
 
-module.exports = (obj) => {
-  return compile((req, res) => {
-    var stream = new Readable
-    stream._read = () => {}
-    stream.push('hello world')
-    stream.push(null)
-    return stream
+module.exports = (obj, relative = '') => {
+  return compile((services, req, res) => {
+    const url = parse(join('/', req.url.substring(relative.length)))
+    const service = services.has(req.method.toLowerCase(), url.pathname)
+    if (service) {
+      return stream('hello world')
+    } else {
+
+    }
   }, obj)
+}
+
+
+
+/**
+ * Stream chunk of data.
+ *
+ * @param {String} chunk
+ * @return {Stream}
+ * @api private
+ */
+
+function stream (chunk) {
+  var obj = new Readable
+  obj._read = () => {}
+  obj.push(chunk)
+  obj.push(null)
+  return obj
 }
