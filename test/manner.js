@@ -12,7 +12,7 @@ test('should be a high order function', assert => {
   assert.equal(typeof api, 'function')
 })
 
-test('should call resource service with implicit path', assert => {
+test('should call function as a service', assert => {
   assert.plan(1)
   const api = service({
     get() {
@@ -23,7 +23,7 @@ test('should call resource service with implicit path', assert => {
 })
 
 
-test('should call resource service with explicit path', assert => {
+test('should call service a function service ', assert => {
   assert.plan(1)
   const api = service({
     get: {
@@ -34,7 +34,7 @@ test('should call resource service with explicit path', assert => {
 })
 
 
-test('should call resource service with explicit function as service', assert => {
+test('should call service from a service object', assert => {
   assert.plan(1)
   const api = service({
     get: {
