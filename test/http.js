@@ -136,7 +136,8 @@ test('should pass query parameters to value function', assert => {
   })
 })
 
-test('should mixin request query parameter for compatibility with other framework', assert => {
+
+test('should mixin request query parameter for compatibility with third party framework', assert => {
   assert.plan(1)
   const api = service({
     get: (data) =>  data
@@ -156,6 +157,20 @@ test('should mixin request query parameter for compatibility with other framewor
     query: {
       first: 'jane'
     }
+  })
+})
+
+
+test('should work with POST request', assert => {
+  assert.plan(1)
+  const api = service({
+    post: (data) =>  data
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {})
+  }, {
+    method: 'POST'
   })
 })
 

@@ -7,6 +7,7 @@ const join = require('path').join
 const query = require('qs').parse
 const parse = require('url').parse
 const morph = require('morph-stream')
+const body = require('request-body')
 
 
 /**
@@ -23,12 +24,10 @@ module.exports = (obj, relative = '') => {
     const url = parse(join('/', req.url.substring(relative.length)))
     const service = services.has(method, url.pathname)
     if (service) {
-      const data = query(url.query)
       return morph(
-        service({
-          ...data,
-          ...req.query
-        }).then(null, reason => status(res, reason))
+        data(query(url.query), req)
+          .then(val => service(val, req, res))
+          .then(null, reason => status(res, reason))
       )
     } else {
       return morph(status(res, {
@@ -57,6 +56,35 @@ function status (res, err) {
       status: code,
       message: err.message,
       payload: err.payload || {}
+    }
+  })
+}
+
+
+/**
+ * Return the content of the body and the query parameters
+ * as a unified object.
+ *
+ * @param {Object} params
+ * @param {ServerRequest} req
+ * @return {Promise}
+ * @api private
+ */
+
+function data (params, req) {
+  return new Promise((resolve, reject) => {
+    const length = req.headers['content-length']
+    if (length && length !== '0') {
+      resolve(body(req).then(data => ({
+        ...params,
+        ...data,
+        ...req.query
+      })))
+    } else {
+      resolve({
+        ...params,
+        ...req.query
+      })
     }
   })
 }
