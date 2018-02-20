@@ -3,8 +3,9 @@
  */
 
 const compile = require('./lib/compile')
-const parse = require('url').parse
 const join = require('path').join
+const query = require('qs').parse
+const parse = require('url').parse
 const morph = require('morph-stream')
 
 
@@ -22,8 +23,11 @@ module.exports = (obj, relative = '') => {
     const url = parse(join('/', req.url.substring(relative.length)))
     const service = services.has(method, url.pathname)
     if (service) {
+      const data = query(url.query)
       return morph(
-        service().then(null, reason => status(res, reason))
+        service({
+          ...data
+        }).then(null, reason => status(res, reason))
       )
     } else {
       return morph(status(res, {
