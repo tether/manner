@@ -207,6 +207,16 @@ test('should pass request and response', assert => {
 })
 
 
+test('should pass empty data if no query parameters or body content', assert => {
+  assert.plan(1)
+  const api = service({
+    get: data => data
+  })
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {})
+  })
+})
+
 
 /**
  * Create HTTP server.
