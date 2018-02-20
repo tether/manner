@@ -111,19 +111,19 @@ test('should automatically generate options', assert => {
       }
     }
   })
-  api.options('/john').then(val => {
+  api.options('/').then(val => {
     assert.equal(typeof val, 'object')
     assert.deepEqual(val['Access-Control-Allow-Methods'], 'GET, OPTIONS')
   })
 })
 
 
-test('should apply schema', assert => {
+test('should apply and resolve schema', assert => {
   assert.plan(1)
   const api = service({
     get: {
       '/': {
-        data: {
+        schema: {
           name: {
             default: 'john'
           }
@@ -135,4 +135,25 @@ test('should apply schema', assert => {
     }
   })
   api.get('/').then(val => assert.equal(val, 'hello john'))
+})
+
+test('should apply and reject schema', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        schema: {
+          name: {
+            required: true
+          }
+        },
+        service(data) {
+          return 'hello ' + data.name
+        }
+      }
+    }
+  })
+  api.get('/').then(null, reason => {
+    assert.equal(reason.message, 'field name is missing')
+  })
 })
