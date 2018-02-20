@@ -29,7 +29,7 @@ test('should stream error payload and set status code', assert => {
     get: {
       '/': {
         service: () => 'hello world',
-        schema: {
+        data: {
           name: {
             required: true
           }

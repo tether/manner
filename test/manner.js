@@ -125,7 +125,7 @@ test('should apply and resolve schema', assert => {
   const api = service({
     get: {
       '/': {
-        schema: {
+        data: {
           name: {
             default: 'john'
           }
@@ -144,7 +144,7 @@ test('should apply and reject schema', assert => {
   const api = service({
     get: {
       '/': {
-        schema: {
+        data: {
           name: {
             required: true
           }
