@@ -218,6 +218,43 @@ test('should pass empty data if no query parameters or body content', assert => 
 })
 
 
+test('call service with dynamic route', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/:name': (data) => {
+        assert.deepEqual(data, {
+          name: 'foo'
+        })
+      }
+    }
+  })
+
+  http((req, res) => {
+    req.url = '/foo' + req.url.substring(1)
+    api(req, res).pipe(res)
+  }, null, true)
+})
+
+
+test('call root service even if dynamic route has been defined', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': data => 'hello world',
+      '/:name': (data) => {
+        return {
+          name: 'foo'
+        }
+      }
+    }
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(data.toString(), 'hello world')
+  })
+})
+
 /**
  * Create HTTP server.
  *
