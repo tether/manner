@@ -194,6 +194,30 @@ test('should work with POST request and body', assert => {
 })
 
 
+test('should mixin query parameters and body content for POST request', assert => {
+  assert.plan(1)
+  const api = service({
+    post: (data) =>  data
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {
+      foo: 'bar',
+      city: 'calgary'
+    })
+  }, {
+    method: 'POST',
+    qs: {
+      city: 'calgary',
+      foo: 'boop'
+    },
+    form: {
+      foo: 'bar'
+    }
+  })
+})
+
+
 test('should pass request and response', assert => {
   assert.plan(2)
   http((req, res) => {
@@ -278,6 +302,9 @@ test('mixin dynamic route params with query parameters', assert => {
     }
   }, true)
 })
+
+
+
 
 
 /**
