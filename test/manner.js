@@ -81,3 +81,19 @@ test('should accept custom routes', assert => {
   })
   assert.equal(api.get('/john'), 'hello john')
 })
+
+
+// test('should accept aliases', assert => {
+//   assert.plan(1)
+//   const api = service({
+//     get: {
+//       '/foo' : '/world',
+//       '/:name': {
+//         service(data) {
+//           return 'hello ' + data.name
+//         }
+//       }
+//     }
+//   })
+//   assert.equal(api.get('/foo'), 'hello world')
+// })
