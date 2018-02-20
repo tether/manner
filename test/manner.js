@@ -19,7 +19,7 @@ test('should call function as a service', assert => {
       return 'hello world'
     }
   })
-  assert.equal(api.get('/'), 'hello world')
+  api.get('/').then(val => assert.equal(val, 'hello world'))
 })
 
 
@@ -29,8 +29,9 @@ test('should call service a function service ', assert => {
     get: {
       '/': () => 'hello world'
     }
+
   })
-  assert.equal(api.get('/'), 'hello world')
+  api.get('/').then(val => assert.equal(val, 'hello world'))
 })
 
 
@@ -45,7 +46,7 @@ test('should call service from a service object', assert => {
       }
     }
   })
-  assert.equal(api.get('/'), 'hello world')
+  api.get('/').then(val => assert.equal(val, 'hello world'))
 })
 
 
@@ -62,9 +63,9 @@ test('should define multiple services', assert => {
     },
     post: () => 'post hello world'
   })
-  assert.equal(api.get('/'), 'get hello world')
-  assert.equal(api.get('/john'), 'get john')
-  assert.equal(api.post('/'), 'post hello world')
+  api.get('/').then(val => assert.equal(val, 'get hello world'))
+  api.get('/john').then(val => assert.equal(val, 'get john'))
+  api.post('/').then(val => assert.equal(val, 'post hello world'))
 })
 
 
@@ -79,7 +80,7 @@ test('should accept custom routes', assert => {
       }
     }
   })
-  assert.equal(api.get('/john'), 'hello john')
+  api.get('/john').then(val => assert.equal(val, 'hello john'))
 })
 
 
@@ -110,7 +111,28 @@ test('should automatically generate options', assert => {
       }
     }
   })
-  const obj = api.options('/')
-  assert.equal(typeof obj, 'object')
-  assert.deepEqual(obj['Access-Control-Allow-Methods'], 'GET, OPTIONS')
+  api.options('/john').then(val => {
+    assert.equal(typeof val, 'object')
+    assert.deepEqual(val['Access-Control-Allow-Methods'], 'GET, OPTIONS')
+  })
+})
+
+
+test('should apply schema', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        data: {
+          name: {
+            default: 'john'
+          }
+        },
+        service(data) {
+          return 'hello ' + data.name
+        }
+      }
+    }
+  })
+  api.get('/').then(val => assert.equal(val, 'hello john'))
 })
