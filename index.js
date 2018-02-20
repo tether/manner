@@ -15,7 +15,7 @@ const methodd = require('methodd')
 
 module.exports = (obj) => {
   const resource = methodd()
-  const services = parse(obj)
+  const services = transform(obj)
   Object.keys(services).map(method => {
     const service = services[method]
     Object.keys(service).map(path => {
@@ -28,13 +28,13 @@ module.exports = (obj) => {
 
 
 /**
- * Parse services.
+ * Parse and transform services.
  *
  * @param {Object} services
  * @api private
  */
 
-function parse (services) {
+function transform (services) {
   const result = {}
   Object.keys(services).map(name => {
     const service = services[name]
@@ -45,6 +45,19 @@ function parse (services) {
           data: {}
         }
       }
+    } else {
+      Object.keys(service).map(path => {
+        if (typeof service[path] === 'function') {
+          result[name] = {
+            [path]: {
+              service: service[path],
+              data: {}
+            }
+          }
+        } else {
+
+        }
+      })
     }
   })
   return result
