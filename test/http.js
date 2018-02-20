@@ -44,6 +44,25 @@ test('should stream error payload and set status code', assert => {
 })
 
 
+test('should stream error 501 if method not implemented', assert => {
+  assert.plan(2)
+  const api = service({
+    post: () => {}
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {
+      error: {
+        status: 501,
+        message: 'method GET not implemented',
+        payload: {}  
+      }
+    })
+    assert.equal(res.statusCode, 501)
+  })
+})
+
+
 /**
  * Create HTTP server.
  *

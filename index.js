@@ -28,7 +28,7 @@ module.exports = (obj, relative = '') => {
     } else {
       return morph(status(res, {
         status: 501,
-        message: `method ${method} not implemented`
+        message: `method ${method.toUpperCase()} not implemented`
       }))
     }
   }, obj)
@@ -54,22 +54,4 @@ function status (res, err) {
       payload: err.payload || {}
     }
   })
-}
-
-
-
-/**
- * Stream chunk of data.
- *
- * @param {String} chunk
- * @return {Stream}
- * @api private
- */
-
-function stream (chunk) {
-  var obj = new Readable
-  obj._read = () => {}
-  obj.push(chunk)
-  obj.push(null)
-  return obj
 }
