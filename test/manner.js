@@ -48,6 +48,7 @@ test('should call service from a service object', assert => {
   assert.equal(api.get('/'), 'hello world')
 })
 
+
 test('should define multiple services', assert => {
   assert.plan(3)
   const api = service({
@@ -64,4 +65,19 @@ test('should define multiple services', assert => {
   assert.equal(api.get('/'), 'get hello world')
   assert.equal(api.get('/john'), 'get john')
   assert.equal(api.post('/'), 'post hello world')
+})
+
+
+test('should accept custom routes', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/:name': {
+        service(data) {
+          return 'hello ' + data.name
+        }
+      }
+    }
+  })
+  assert.equal(api.get('/john'), 'hello john')
 })
