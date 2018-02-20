@@ -4,6 +4,8 @@
 
 const test = require('tape')
 const service = require('..')
+const http = require('server-test')
+
 
 
 test('should be a high order function', assert => {

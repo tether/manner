@@ -14,7 +14,7 @@ const compile = require('./lib/compile')
  */
 
 module.exports = (obj) => {
-  return compile((...args) => {
-    console.log('inside http', args)
+  return compile((req, res) => {
+    console.log('inside http')
   }, obj)
 }
