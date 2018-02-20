@@ -23,7 +23,14 @@ module.exports = (obj, relative = '') => {
     if (service) {
       return morph(
         service().then(null, err => {
-          console.log('ERROR', err)
+          const code = res.statusCode = Number(err.status) || 400
+          return Promise.resolve({
+            error: {
+              status: code,
+              message: err.message,
+              payload: err.payload || {}
+            }
+          })
         })
       )
     } else {
