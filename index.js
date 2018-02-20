@@ -18,25 +18,42 @@ const morph = require('morph-stream')
 
 module.exports = (obj, relative = '') => {
   return compile((services, req, res) => {
+    const method = req.method.toLowerCase()
     const url = parse(join('/', req.url.substring(relative.length)))
-    const service = services.has(req.method.toLowerCase(), url.pathname)
+    const service = services.has(method, url.pathname)
     if (service) {
       return morph(
-        service().then(null, err => {
-          const code = res.statusCode = Number(err.status) || 400
-          return Promise.resolve({
-            error: {
-              status: code,
-              message: err.message,
-              payload: err.payload || {}
-            }
-          })
-        })
+        service().then(null, reason => status(res, reason))
       )
     } else {
-
+      return morph(status(res, {
+        status: 501,
+        message: `method ${method} not implemented`
+      }))
     }
   }, obj)
+}
+
+
+/**
+ * Set response error with custom status status code
+ * and payload.
+ *
+ * @param {ServerResponse} res
+ * @param {Object} err
+ * @return {Promise}
+ * @api private
+ */
+
+function status (res, err) {
+  const code = res.statusCode = Number(err.status) || 400
+  return Promise.resolve({
+    error: {
+      status: code,
+      message: err.message,
+      payload: err.payload || {}
+    }
+  })
 }
 
 
