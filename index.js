@@ -3,7 +3,7 @@
  */
 
 const compile = require('./lib/compile')
-
+const Readable = require('stream').Readable
 
 /**
  * Create web resource.
@@ -15,6 +15,10 @@ const compile = require('./lib/compile')
 
 module.exports = (obj) => {
   return compile((req, res) => {
-    console.log('inside http')
+    var stream = new Readable
+    stream._read = () => {}
+    stream.push('hello world')
+    stream.push(null)
+    return stream
   }, obj)
 }

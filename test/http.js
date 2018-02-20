@@ -5,7 +5,7 @@
 const test = require('tape')
 const service = require('..')
 const http = require('server-test')
-
+const concat = require('concat-stream')
 
 
 test('should be a high order function', assert => {
@@ -21,6 +21,13 @@ test('should be a high order function', assert => {
 })
 
 
+/**
+ * Create HTTP server.
+ *
+ * @param {Stream} api
+ * @param {Function} cb
+ * @api private
+ */
 
 function server (api, cb) {
   http((req, res) => {
