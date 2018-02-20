@@ -2,6 +2,7 @@
  * Dependencie(s)
  */
 
+const methodd = require('methodd')
 
 
 /**
@@ -13,8 +14,10 @@
  * @api public
  */
 
-module.exports = () => {
-  return function () {
-    
-  }
+module.exports = (services) => {
+  const resource = methodd()
+  Object.keys(services).map(name => {
+    resource.add(name, '/', services[name])
+  })
+  return resource
 }
