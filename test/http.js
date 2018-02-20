@@ -75,7 +75,7 @@ test('should not have to return data', assert => {
 })
 
 
-test('should chunk streams through the respsonse', assert => {
+test('should chunk streams through HTTP respsonse', assert => {
   assert.plan(1)
   const api = service({
     get: () => fs.createReadStream(__dirname + '/manner.txt')
@@ -86,7 +86,7 @@ test('should chunk streams through the respsonse', assert => {
 })
 
 
-test('should send promise through the respsonse', assert => {
+test('should send promise through HTTP respsonse', assert => {
   assert.plan(1)
   const api = service({
     get: () => {
@@ -97,6 +97,23 @@ test('should send promise through the respsonse', assert => {
   })
   server(api, (data, res) => {
     assert.equal(data.toString(), 'hello world')
+  })
+})
+
+
+test('should send object through HTTP response', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => {
+      return {
+        foo: 'bar'
+      }
+    }
+  })
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data),{
+      foo: 'bar'
+    })
   })
 })
 
