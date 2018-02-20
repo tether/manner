@@ -255,6 +255,31 @@ test('call root service even if dynamic route has been defined', assert => {
   })
 })
 
+test('mixin dynamic route params with query parameters', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/:name': (data) => {
+        assert.deepEqual(data, {
+          name: 'foo',
+          city: 'calgary'
+        })
+      }
+    }
+  })
+
+  http((req, res) => {
+    req.url = '/foo' + req.url.substring(1)
+    api(req, res).pipe(res)
+  }, {
+    qs: {
+      city: 'calgary',
+      name: 'bar'
+    }
+  }, true)
+})
+
+
 /**
  * Create HTTP server.
  *
