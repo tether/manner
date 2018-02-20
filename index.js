@@ -5,7 +5,7 @@
 const compile = require('./lib/compile')
 const parse = require('url').parse
 const join = require('path').join
-const Readable = require('stream').Readable
+const morph = require('morph-stream')
 
 
 /**
@@ -21,7 +21,11 @@ module.exports = (obj, relative = '') => {
     const url = parse(join('/', req.url.substring(relative.length)))
     const service = services.has(req.method.toLowerCase(), url.pathname)
     if (service) {
-      return stream('hello world')
+      return morph(
+        service().then(null, err => {
+          console.log('ERROR', err)
+        })
+      )
     } else {
 
     }
