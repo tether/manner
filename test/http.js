@@ -218,6 +218,28 @@ test('should mixin query parameters and body content for POST request', assert =
 })
 
 
+test('should limit the number of bytes of POST content', assert => {
+  assert.plan(1)
+  const api = service({
+    post: {
+      '/': {
+        limit: 1,
+        service: data => data
+      }
+    }
+  })
+
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {})
+  }, {
+    method: 'POST',
+    form: {
+      foo: 'bar'
+    }
+  })
+})
+
+
 test('should pass request and response', assert => {
   assert.plan(2)
   http((req, res) => {
@@ -302,6 +324,7 @@ test('mixin dynamic route params with query parameters', assert => {
     }
   }, true)
 })
+
 
 
 

@@ -19,13 +19,13 @@ const body = require('request-body')
  */
 
 module.exports = (obj, relative = '') => {
-  return compile((services, req, res) => {
+  return compile((core, services, req, res) => {
     const method = req.method.toLowerCase()
     const url = parse(join('/', req.url.substring(relative.length)))
-    const service = services.has(method, url.pathname)
+    const service = core.has(method, url.pathname)
     if (service) {
       return morph(
-        data(query(url.query), req)
+        data(query(url.query), req, services[method][service.path].limit)
           .then(val => service(val, req, res))
           .then(null, reason => status(res, reason))
       )
@@ -67,14 +67,15 @@ function status (res, err) {
  *
  * @param {Object} params
  * @param {ServerRequest} req
+ * @param {Number} limit (default 100kb)
  * @return {Promise}
  * @api private
  */
 
-function data (params, req) {
+function data (params, req, limit = 100000) {
   return new Promise(resolve => {
-    const length = req.headers['content-length']
-    if (length && length !== '0') {
+    const length = Number(req.headers['content-length'])
+    if (length && length > 0 && length <= limit) {
       resolve(body(req).then(val => {
         return {
           ...params,
