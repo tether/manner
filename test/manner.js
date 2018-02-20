@@ -97,3 +97,18 @@ test('should accept custom routes', assert => {
 //   })
 //   assert.equal(api.get('/foo'), 'hello world')
 // })
+
+
+test('should automatically generate options', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        service() {
+          return 'hello world'
+        }
+      }
+    }
+  })
+  assert.equal(typeof api.options('/'), 'object')
+})

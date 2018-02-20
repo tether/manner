@@ -3,6 +3,7 @@
  */
 
 const methodd = require('methodd')
+const options = require('./lib/options')
 
 
 /**
@@ -49,8 +50,10 @@ function parse (services) {
       })
     }
   })
-  return result
+  return options(result)
 }
+
+
 
 
 /**
