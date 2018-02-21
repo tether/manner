@@ -3,12 +3,13 @@
  */
 
 const compile = require('./lib/compile')
-const join = require('path').join
+const { join, extname } = require('path')
 const query = require('qs').parse
 const parse = require('url').parse
 const morph = require('morph-stream')
 const body = require('request-body')
-
+const lookup = require('mime-types').contentType
+const stream = require('stream')
 
 /**
  * Create web resource.
@@ -30,7 +31,7 @@ module.exports = (obj, relative = '') => {
           .then(val => service({...val, ...req.query}, req, res))
           .then(val => {
             res.statusCode = Number(conf.options.status) || 200
-            res.setHeader('Content-Type', conf.options.type || mime(typeof val))
+            res.setHeader('Content-Type', conf.options.type || mime(val))
             return val
           }, reason => status(res, reason))
       )
@@ -45,17 +46,25 @@ module.exports = (obj, relative = '') => {
 
 
 /**
- * Return MIME type according the given typeof.
+ * Return MIME type according of a value.
+ *
+ * @note we could read the .path property of a stream
+ * to get the right content type using mime-types
  *
  * @param {String} type
  * @return {String}
  * @api private
  */
 
-function mime (type) {
-  return type === 'object'
-  ? 'application/json; charset=utf-8'
-  : 'text/plain; charset=utf-8'
+function mime (value) {
+  if (typeof value == 'object') {
+    let type = 'application/json; charset=utf-8'
+    if (value instanceof stream.Stream) {
+      type = lookup(extname(value.path)) || type
+    }
+    return type
+  }
+  return 'text/plain; charset=utf-8'
 }
 
 

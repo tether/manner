@@ -492,6 +492,16 @@ test('should set custom content type', assert => {
   })
 })
 
+test('should set content type based on file', assert => {
+  assert.plan(1)
+  const api = service({
+    get: () => fs.createReadStream(__dirname + '/manner.html')
+  })
+  server(api, (data, res) => {
+    assert.equal(res.getHeader('Content-Type'), 'text/html; charset=utf-8')
+  })
+})
+
 test('should be able to set custom status code in case of success', assert => {
   assert.plan(1)
   const api = service({
