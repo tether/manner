@@ -208,3 +208,39 @@ test('should support nesting of services', assert => {
   api.get('/jane').then(val => assert.equal(val, 'hello jane'))
   api.get('/jane/doe').then(val => assert.equal(val, 'hello jane doe'))
 })
+
+test('should generate options for nested services', assert => {
+  assert.plan(5)
+  const api = service({
+    get: {
+      '/': {
+        service : () => 'hello world',
+        routes: {
+          '/john': {
+            service: () => 'hello john',
+            routes: {
+              '/doe': {
+                service: () => 'hello john doe'
+              }
+            }
+          },
+          '/jane': {
+            service: () => 'hello jane',
+            routes: {
+              '/doe': {
+                service: () => 'hello jane doe'
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+  api.options('/').then(val => assert.equal(typeof val, 'object'))
+  api.options('/john').then(val => assert.equal(typeof val, 'object'))
+  api.options('/john/doe').then(val => assert.equal(typeof val, 'object'))
+  api.options('/jane').then(val => assert.equal(typeof val, 'object'))
+  api.options('/jane/doe').then(val => assert.equal(typeof val, 'object'))
+
+
+})
