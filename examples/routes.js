@@ -5,7 +5,7 @@
 const http = require('http')
 const service= require('..')
 const Readable = require('stream').Readable
-
+const fs = require('fs')
 
 
 
@@ -21,7 +21,8 @@ const user = service({
     },
     '/error': () => {
       throw new Error('this is some error')
-    }
+    },
+    '/html': () => fs.createReadStream(__dirname + '/sample.html')
   },
   'post': (query, data) => {
     return data
