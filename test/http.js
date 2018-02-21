@@ -427,6 +427,7 @@ test('should set content type application/json if error', assert => {
   })
 })
 
+
 test('should set custom content type', assert => {
   assert.plan(1)
   const api = service({
@@ -444,6 +445,22 @@ test('should set custom content type', assert => {
   })
 })
 
+test('should be able to set custom status code in case of success', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        options: {
+          status: 201
+        },
+        service: data => data
+      }
+    }
+  })
+  server(api, (data, res) => {
+    assert.equal(res.statusCode, 201)
+  })
+})
 
 /**
  * Create HTTP server.
