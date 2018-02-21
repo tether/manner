@@ -241,6 +241,4 @@ test('should generate options for nested services', assert => {
   api.options('/john/doe').then(val => assert.equal(typeof val, 'object'))
   api.options('/jane').then(val => assert.equal(typeof val, 'object'))
   api.options('/jane/doe').then(val => assert.equal(typeof val, 'object'))
-
-
 })
