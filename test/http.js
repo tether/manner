@@ -391,6 +391,53 @@ test('should call multiple async middleware in serie', assert => {
 })
 
 
+test('should accept  aliases', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/foo' : '/world',
+      '/:name': {
+        service(data) {
+          assert.equal(data.name, 'world')
+        }
+      }
+    }
+  })
+
+  http((req, res) => {
+    req.url = '/foo'
+    api(req, res).pipe(res)
+  }, null, true)
+})
+
+
+test('should send error if alias does not exist', assert => {
+  assert.plan(2)
+  const api = service({
+    get: {
+      '/' : '/world',
+      '/foo': {
+        service(data) {
+          assert.equal(data.name, 'world')
+        }
+      }
+    }
+  })
+
+  server(api, (data, res) => {
+    assert.equal(res.statusCode, 400)
+    assert.deepEqual(JSON.parse(data), {
+      error: {
+        status: 400,
+        message: 'service / not implemented',
+        payload: {}
+      }
+    })
+  })
+})
+
+
+
 test('should set content type application/json if object returned is an object', assert => {
   assert.plan(1)
   const api = service({
@@ -461,6 +508,8 @@ test('should be able to set custom status code in case of success', assert => {
     assert.equal(res.statusCode, 201)
   })
 })
+
+
 
 /**
  * Create HTTP server.
