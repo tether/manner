@@ -16,7 +16,6 @@ const Readable = require('stream').Readable
 const user = service({
   'get': {
     '/': () => 'hello world',
-    '/foo': '/bar',
     '/:name': (query) => {
       return query
     },

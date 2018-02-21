@@ -24,10 +24,14 @@ module.exports = (obj, relative = '') => {
     const url = parse(join('/', req.url.substring(relative.length)))
     const service = core.has(method, url.pathname)
     if (service) {
+      const conf = services[method][service.path]
       return morph(
-        data(query(url.query), req, services[method][service.path].limit)
+        data(query(url.query), req, conf.limit)
           .then(val => service({...val, ...req.query}, req, res))
-          .then(null, reason => status(res, reason))
+          .then(val => {
+            res.setHeader('Content-Type', conf.type || mime(typeof val))
+            return val
+          }, reason => status(res, reason))
       )
     } else {
       return morph(status(res, {
@@ -36,6 +40,21 @@ module.exports = (obj, relative = '') => {
       }))
     }
   }, obj)
+}
+
+
+/**
+ * Return MIME type according the given typeof.
+ *
+ * @param {String} type
+ * @return {String}
+ * @api private
+ */
+
+function mime (type) {
+  return type === 'object'
+  ? 'application/json; charset=utf-8'
+  : 'text/plain; charset=utf-8'
 }
 
 
@@ -51,6 +70,7 @@ module.exports = (obj, relative = '') => {
 
 function status (res, err) {
   const code = res.statusCode = Number(err.status) || 400
+  res.setHeader('Content-Type', 'application/json; charset=utf-8')
   return Promise.resolve({
     error: {
       status: code,

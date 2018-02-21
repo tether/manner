@@ -391,6 +391,31 @@ test('should call multiple async middleware in serie', assert => {
 })
 
 
+test('should set content type application/json if object returned is an object', assert => {
+  assert.plan(1)
+  const api = service({
+    get() {
+      return {}
+    }
+  })
+  server(api, (data, res) => {
+    assert.equal(res.getHeader('Content-Type'), 'application/json; charset=utf-8')
+  })
+})
+
+test('should set content type text/plain if object returned is not an object', assert => {
+  assert.plan(1)
+  const api = service({
+    get() {
+      return 'hello world'
+    }
+  })
+  server(api, (data, res) => {
+    assert.equal(res.getHeader('Content-Type'), 'text/plain; charset=utf-8')
+  })
+})
+
+
 /**
  * Create HTTP server.
  *
