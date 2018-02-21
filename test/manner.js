@@ -86,20 +86,39 @@ test('should accept custom routes', assert => {
 })
 
 
-// test('should accept aliases', assert => {
-//   assert.plan(1)
-//   const api = service({
-//     get: {
-//       '/foo' : '/world',
-//       '/:name': {
-//         service(data) {
-//           return 'hello ' + data.name
-//         }
-//       }
-//     }
-//   })
-//   assert.equal(api.get('/foo'), 'hello world')
-// })
+test('should accept aliases', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/foo' : '/world',
+      '/:name': {
+        service(data) {
+          return 'hello ' + data.name
+        }
+      }
+    }
+  })
+  api.get('/foo').then(val => assert.equal(val, 'hello world'))
+})
+
+
+test('should reject undefined aliases', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/foo' : '/world',
+      '/': {
+        service(data) {
+          return 'hello ' + data.name
+        }
+      }
+    }
+  })
+
+  api.get('/foo').then(null, err => {
+    assert.equal(err.message, 'service /foo not implemented')
+  })
+})
 
 
 test('should automatically generate options', assert => {
