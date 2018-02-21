@@ -427,6 +427,23 @@ test('should set content type application/json if error', assert => {
   })
 })
 
+test('should set custom content type', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        options: {
+          type: 'markdown'
+        },
+        service: data => `# Hello world`
+      }
+    }
+  })
+  server(api, (data, res) => {
+    assert.equal(res.getHeader('Content-Type'), 'text/markdown; charset=utf-8')
+  })
+})
+
 
 /**
  * Create HTTP server.

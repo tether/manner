@@ -29,7 +29,7 @@ module.exports = (obj, relative = '') => {
         data(query(url.query), req, conf.limit)
           .then(val => service({...val, ...req.query}, req, res))
           .then(val => {
-            res.setHeader('Content-Type', conf.type || mime(typeof val))
+            res.setHeader('Content-Type', conf.options.type || mime(typeof val))
             return val
           }, reason => status(res, reason))
       )
