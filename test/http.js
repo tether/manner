@@ -326,8 +326,69 @@ test('mixin dynamic route params with query parameters', assert => {
 })
 
 
+test('should call middlware', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        middleware: [
+          data => ({name: 'john'})
+        ],
+        service: data => data
+      }
+    }
+  })
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {
+      name: 'john'
+    })
+  })
+})
 
+test('should call multiple middleware in serie', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        middleware: [
+          data => ({name: 'john'}),
+          data => ({...data, city: 'calgary'})
+        ],
+        service: data => data
+      }
+    }
+  })
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {
+      name: 'john',
+      city: 'calgary'
+    })
+  })
+})
 
+test('should call multiple async middleware in serie', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        middleware: [
+          data => ({name: 'john'}),
+          data => new Promise(resolve => setTimeout(() => resolve({...data, city: 'calgary'}), 60)),
+          data => new Promise(resolve => setTimeout(() => resolve({...data, country: 'canada'}), 10)),
+          data => ({...data, name: 'olivier'})
+        ],
+        service: data => data
+      }
+    }
+  })
+  server(api, (data, res) => {
+    assert.deepEqual(JSON.parse(data), {
+      name: 'olivier',
+      city: 'calgary',
+      country: 'canada'
+    })
+  })
+})
 
 
 /**
