@@ -415,6 +415,18 @@ test('should set content type text/plain if object returned is not an object', a
   })
 })
 
+test('should set content type application/json if error', assert => {
+  assert.plan(1)
+  const api = service({
+    get() {
+      throw new Error('whaaaat')
+    }
+  })
+  server(api, (data, res) => {
+    assert.equal(res.getHeader('Content-Type'), 'application/json; charset=utf-8')
+  })
+})
+
 
 /**
  * Create HTTP server.
