@@ -176,14 +176,19 @@ test('should call a service and pass manner core as its scope', assert => {
 
 
 test('should support nesting of services', assert => {
-  assert.plan(2)
+  assert.plan(3)
   const api = service({
     get: {
       '/': {
         service : () => 'hello world',
         routes: {
           '/john': {
-            service: () => 'hello john'
+            service: () => 'hello john',
+            routes: {
+              '/doe': {
+                service: () => 'hello john doe'
+              }
+            }
           }
         }
       }
@@ -191,4 +196,5 @@ test('should support nesting of services', assert => {
   })
   api.get('/').then(val => assert.equal(val, 'hello world'))
   api.get('/john').then(val => assert.equal(val, 'hello john'))
+  api.get('/john/doe').then(val => assert.equal(val, 'hello john doe'))
 })
