@@ -26,10 +26,7 @@ module.exports = (obj, relative = '') => {
     if (service) {
       return morph(
         data(query(url.query), req, services[method][service.path].limit)
-          .then(val => service({
-            ...val,
-            ...req.query
-          }, req, res))
+          .then(val => service({...val, ...req.query}, req, res))
           .then(null, reason => status(res, reason))
       )
     } else {
