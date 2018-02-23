@@ -10,6 +10,8 @@ const morph = require('morph-stream')
 const body = require('request-body')
 const lookup = require('mime-types').contentType
 const stream = require('stream')
+const assert = require('assert')
+
 
 /**
  * Create web resource.
@@ -21,28 +23,104 @@ const stream = require('stream')
  */
 
 module.exports = (obj, dev) => {
-  return compile((core, services, req, res) => {
-    const method = req.method.toLowerCase()
-    const url = parse(join('/', req.url))
-    const service = core.has(method, url.pathname)
-    if (service) {
-      const conf = services[method][service.path]
-      return morph(
-        data(query(url.query), req, conf.limit)
-          .then(val => service({...val, ...req.query}, req, res))
-          .then(val => {
-            res.statusCode = Number(conf.options.status) || 200
-            res.setHeader('Content-Type', conf.options.type || mime(val))
-            return val
-          }, reason => status(res, reason))
-      )
-    } else {
-      return morph(status(res, {
-        status: 501,
-        message: `method ${method.toUpperCase()} not implemented`
-      }))
+  return compile(dev ? stub : resource, obj)
+}
+
+
+/**
+ * Create resource.
+ *
+ * A resource is a set of HTTP methods (or services).
+ *
+ * @param {Object} core
+ * @param {Object} services
+ * @param {ServerRequest} req
+ * @param {ServerResponse} res
+ * @return {Stream}
+ * @api public
+ */
+
+function resource (core, services, req, res) {
+  const method = req.method.toLowerCase()
+  const url = parse(join('/', req.url))
+  const service = core.has(method, url.pathname)
+  if (service) {
+    const conf = services[method][service.path]
+    return morph(
+      data(query(url.query), req, conf.limit)
+        .then(val => service({...val, ...req.query}, req, res))
+        .then(val => {
+          res.statusCode = Number(conf.options.status) || 200
+          res.setHeader('Content-Type', conf.options.type || mime(val))
+          return val
+        }, reason => status(res, reason))
+    )
+  } else {
+    return morph(status(res, {
+      status: 501,
+      message: `method ${method.toUpperCase()} not implemented`
+    }))
+  }
+}
+
+
+/**
+ * Stub resource.
+ *
+ * @param {Object} core
+ * @param {Object} services
+ * @param {ServerRequest} req
+ * @param {ServerResponse} res
+ * @return {Stream}
+ * @api private
+ */
+
+function stub (core, services, req, res) {
+  const method = req.method.toLowerCase()
+  const url = parse(join('/', req.url))
+  const handler = core.has(method, url.pathname)
+  if (handler) {
+    const service = services[method][handler.path]
+    const stories = service.stories
+    return morph(
+      data(query(url.query), req, service.limit)
+        .then(val => match(val, stories))
+        .then(story => {
+          const payload = story.payload
+          res.statusCode = story.status || 200
+          res.setHeader('Content-Type', mime(payload))
+          return payload
+        }, reason => status(res, {
+          status: 422,
+          message: `request content does not match any user story`
+        }))
+    )
+  } else {
+    return morph(status(res, {
+      status: 501,
+      message: `method ${method.toUpperCase()} not implemented`
+    }))
+  }
+}
+
+/**
+ * Check if data match one user story.
+ *
+ * @param {Object} data
+ * @param {Array} stories
+ * @return {Promise} resolved if match
+ * @api private
+ */
+
+function match (data, stories) {
+  var story
+  return new Promise((resolve, reject) => {
+    for (var i = 0, l = stories.length; i < l; i++) {
+      story = stories[i]
+      assert.notDeepEqual(data, story.data)
     }
-  }, obj)
+    resolve()
+  }).then(() => Promise.reject(), val => Promise.resolve(story))
 }
 
 

@@ -520,6 +520,131 @@ test('should be able to set custom status code in case of success', assert => {
 })
 
 
+test('should stub service with one user story', assert => {
+  assert.plan(2)
+  const api = service({
+    post: {
+      '/': {
+        service() {},
+        stories: [{
+          data: {
+            name: 'hello'
+          },
+          status: 200,
+          payload: {
+            created: true
+          }
+        }, {
+          data: {
+            name: 'something else'
+          },
+          status: 404,
+          payload: {
+            created: false
+          }
+        }]
+      }
+    }
+  }, true)
+  server(api, (data, res) => {
+    assert.equal(res.statusCode, 200)
+    assert.deepEqual(JSON.parse(data), {
+      created: true
+    })
+  }, {
+    method: 'POST',
+    form: {
+      name: 'hello'
+    }
+  })
+})
+
+
+test('should stub service and go through every user story', assert => {
+  assert.plan(2)
+  const api = service({
+    post: {
+      '/': {
+        service() {},
+        stories: [{
+          data: {
+            name: 'hello'
+          },
+          status: 200,
+          payload: {
+            created: true
+          }
+        }, {
+          data: {
+            name: 'something else'
+          },
+          status: 404,
+          payload: {
+            created: false
+          }
+        }]
+      }
+    }
+  }, true)
+  server(api, (data, res) => {
+    assert.equal(res.statusCode, 404)
+    assert.deepEqual(JSON.parse(data), {
+      created: false
+    })
+  }, {
+    method: 'POST',
+    form: {
+      name: 'something else'
+    }
+  })
+})
+
+
+test('should give indication if user story does not exist', assert => {
+  assert.plan(2)
+  const api = service({
+    post: {
+      '/': {
+        service() {},
+        stories: [{
+          data: {
+            name: 'hello'
+          },
+          status: 200,
+          payload: {
+            created: true
+          }
+        }, {
+          data: {
+            name: 'something else'
+          },
+          status: 404,
+          payload: {
+            created: false
+          }
+        }]
+      }
+    }
+  }, true)
+  server(api, (data, res) => {
+    assert.equal(res.statusCode, 422)
+    assert.deepEqual(JSON.parse(data), {
+      error: {
+        status: 422,
+        message: 'request content does not match any user story',
+        payload: {}
+      }
+    })
+  }, {
+    method: 'POST',
+    form: {
+      name: 'what'
+    }
+  })
+})
+
+
+
 
 /**
  * Create HTTP server.
