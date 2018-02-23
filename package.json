@@ -1,6 +1,9 @@
 {
   "name": "manner",
-  "version": "5.1.0",
+  "version": "5.1.1",
+  "engines" : {
+    "node" : ">=8.0.0"
+  },
   "description": "Creating web resources has never been so easy",
   "main": "index.js",
   "scripts": {
