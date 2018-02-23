@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "tape test/*.js",
-    "example": "node examples/routes.js",
-    "example:upload": "node examples/upload.js"
+    "example:services": "node examples/services.js",
+    "example:tree": "node examples/tree.js"
   },
   "repository": {
     "type": "git",
