@@ -15,14 +15,15 @@ const stream = require('stream')
  * Create web resource.
  *
  * @param {Object} obj
+ * @param {Boolean} dev
  * @return {Function}
  * @api public
  */
 
-module.exports = (obj, relative = '') => {
+module.exports = (obj, dev) => {
   return compile((core, services, req, res) => {
     const method = req.method.toLowerCase()
-    const url = parse(join('/', req.url.substring(relative.length)))
+    const url = parse(join('/', req.url))
     const service = core.has(method, url.pathname)
     if (service) {
       const conf = services[method][service.path]
