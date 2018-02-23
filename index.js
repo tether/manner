@@ -114,6 +114,14 @@ function stub (core, services, req, res) {
 
 function match (data, stories) {
   var story
+  if (!(stories instanceof Array)) {
+    stories = Object.keys(stories).map(key => {
+      return {
+        key,
+        ...stories[key]
+      }
+    })
+  }
   return new Promise((resolve, reject) => {
     for (var i = 0, l = stories.length; i < l; i++) {
       story = stories[i]

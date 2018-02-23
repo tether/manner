@@ -644,6 +644,48 @@ test('should give indication if user story does not exist', assert => {
 })
 
 
+test('should stub service and go through  user stories define as object', assert => {
+  assert.plan(2)
+  const api = service({
+    post: {
+      '/': {
+        service() {},
+        stories: {
+          'success': {
+            data: {
+              name: 'hello'
+            },
+            status: 200,
+            payload: {
+              created: true
+            }
+          },
+          'failure': {
+            data: {
+              name: 'something else'
+            },
+            status: 404,
+            payload: {
+              created: false
+            }
+          }
+        }
+      }
+    }
+  }, true)
+  server(api, (data, res) => {
+    assert.equal(res.statusCode, 404)
+    assert.deepEqual(JSON.parse(data), {
+      created: false
+    })
+  }, {
+    method: 'POST',
+    form: {
+      name: 'something else'
+    }
+  })
+})
+
 
 
 /**
