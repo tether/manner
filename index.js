@@ -1,138 +1,208 @@
 /**
- * Dependencies.
+ * Dependencie(s)
  */
 
-const service = require('methodd')
-const status = require('http-errors')
-const salute = require('salute')
+const compile = require('./lib/compile')
+const { join, extname } = require('path')
 const query = require('qs').parse
 const parse = require('url').parse
+const morph = require('morph-stream')
 const body = require('request-body')
-const join = require('path').join
-const debug = require('debug')('manner')
-const passover = require('passover')
-const isokay = require('isokay')
-
-const compile = require('manner-to-schema')
-const mix = require('deepmix')
+const lookup = require('mime-types').contentType
+const stream = require('stream')
+const assert = require('assert')
 
 
 /**
- * Create web services from an object.
+ * Create web resource.
  *
  * @param {Object} obj
- * @param {Object} schema
+ * @param {Boolean} dev
  * @return {Function}
  * @api public
  */
 
-
-module.exports = (methods, schema = {}) => {
-  const options = mix(compile(methods), schema)
-  const relative = options.relative || ''
-
-  debug('Initialize endpoint %s', relative)
-  const api = service(salute((req, res) => {
-    const method = req.method.toLowerCase()
-    const url = parse(join('/', req.url.substring(relative.length)))
-    const pathname = url.pathname
-    const handler = api.has(method, pathname)
-    debug(`Serve endpoint [%s] %s`, method.toUpperCase(), pathname, !!handler)
-
-    if (handler) {
-      const schema = options[method][handler.path]
-      const type = schema.type
-      const payload = req.query
-      const parameters = Object.assign(
-        query(url.query),
-        typeof payload === 'object'
-          ? payload
-          : {}
-      )
-
-      if (type) res.setHeader('Content-Type', salute.mime(type))
-
-      return Promise.all([
-        isokay(parameters, schema.query),
-        body(req).then(data => isokay(data, schema.body))
-      ]).then(([params, data]) => {
-        var middleware = []
-        if (schema.middleware) middleware = middleware.concat(schema.middleware)
-        return middlewares([
-          ...middleware,
-          (query, body) => handler(query, body, req, res)
-        ], params, data, req, res)
-      }, err => {
-        // @note we should send error payload with it
-        return status(err.statusCode || 400)
-      })
-    } else {
-      return status(501)
-    }
-  }))
-  add(api, methods, relative)
-  return api
+module.exports = (obj, dev) => {
+  return compile(dev ? stub : resource, obj)
 }
 
 
-// /**
-//  * Create schema from manner service mixed in
-//  * with passed schema.
-//  */
-//
-// function compile () {
-//   // create schema from endpoint methods
-//   // mixin with passed schema
-//   // => this way we never have null or undefined values
-//   // we do not need passover
-//   // compile middleware arrays into single Function (middlwares can be an array, a function or an object)
-//   // compile if called at the beginning not inside the request handler
-//
-//   // we should check if schema query or body to validate against schema
-//   // for body we should check the request content length
-// }
-
-
 /**
- * Apply middlewares.
+ * Create resource.
  *
- * @param {Array} array
- * @param {Object} params
- * @param {Object} data
- * @param {Object} req
- * @param {Object} res
- * @return {Any}
- * @api private
+ * A resource is a set of HTTP methods (or services).
+ *
+ * @param {Object} core
+ * @param {Object} services
+ * @param {ServerRequest} req
+ * @param {ServerResponse} res
+ * @return {Stream}
+ * @api public
  */
 
-function middlewares(array = [], params, data, req, res) {
-  var index = -1
-  var next = function (query, body) {
-    const cb = array[++index]
-    if (cb) return cb(query, body, next, req, res)
+function resource (core, services, req, res) {
+  const method = req.method.toLowerCase()
+  const url = parse(join('/', req.url))
+  const service = core.has(method, url.pathname)
+  if (service) {
+    const conf = services[method][service.path]
+    return morph(
+      data(query(url.query), req, conf.limit)
+        .then(val => service({...val, ...req.query}, req, res))
+        .then(val => {
+          res.statusCode = Number(conf.options.status) || 200
+          res.setHeader('Content-Type', conf.options.type || mime(val))
+          return val
+        }, reason => status(res, reason))
+    )
+  } else {
+    return morph(status(res, {
+      status: 501,
+      message: `method ${method.toUpperCase()} not implemented`
+    }))
   }
-  return next(params, data)
 }
 
 
 /**
- * Add routes.
+ * Stub resource.
  *
- * @param {Function} api
- * @param {Object} methods
- * @param {String} relative (used for logs only)
+ * @param {Object} core
+ * @param {Object} services
+ * @param {ServerRequest} req
+ * @param {ServerResponse} res
+ * @return {Stream}
  * @api private
  */
 
-function add(api, methods, relative) {
-  Object.keys(methods).map(key => {
-    const value = methods[key]
-    if (typeof value !== 'object') {
-      methods[key] = {
-        '/': value
+function stub (core, services, req, res) {
+  const method = req.method.toLowerCase()
+  const url = parse(join('/', req.url))
+  const handler = core.has(method, url.pathname)
+  if (handler) {
+    const service = services[method][handler.path]
+    const stories = service.stories
+    return morph(
+      data(query(url.query), req, service.limit)
+        .then(val => match(val, stories))
+        .then(story => {
+          const payload = story.payload
+          res.statusCode = story.status || 200
+          res.setHeader('Content-Type', mime(payload))
+          return payload
+        }, reason => status(res, {
+          status: 422,
+          message: `request content does not match any user story`
+        }))
+    )
+  } else {
+    return morph(status(res, {
+      status: 501,
+      message: `method ${method.toUpperCase()} not implemented`
+    }))
+  }
+}
+
+/**
+ * Check if data match one user story.
+ *
+ * @param {Object} data
+ * @param {Array} stories
+ * @return {Promise} resolved if match
+ * @api private
+ */
+
+function match (data, stories) {
+  var story
+  if (!(stories instanceof Array)) {
+    stories = Object.keys(stories).map(key => {
+      return {
+        key,
+        ...stories[key]
       }
+    })
+  }
+  return new Promise((resolve, reject) => {
+    for (var i = 0, l = stories.length; i < l; i++) {
+      story = stories[i]
+      assert.notDeepEqual(data, story.data)
     }
-    debug('Create endpoint [%s] %s', key.toUpperCase(), relative)
+    resolve()
+  }).then(() => Promise.reject(), val => Promise.resolve(story))
+}
+
+
+/**
+ * Return MIME type according of a value.
+ *
+ * @note we could read the .path property of a stream
+ * to get the right content type using mime-types
+ *
+ * @param {String} type
+ * @return {String}
+ * @api private
+ */
+
+function mime (value) {
+  if (typeof value == 'object') {
+    let type = 'application/json; charset=utf-8'
+    if (value instanceof stream.Stream) {
+      type = lookup(extname(value.path)) || type
+    }
+    return type
+  }
+  return 'text/plain; charset=utf-8'
+}
+
+
+/**
+ * Set response error with custom status status code
+ * and payload.
+ *
+ * @param {ServerResponse} res
+ * @param {Object} err
+ * @return {Promise}
+ * @api private
+ */
+
+function status (res, err) {
+  const code = res.statusCode = Number(err.status) || 400
+  res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  return Promise.resolve({
+    error: {
+      status: code,
+      message: err.message,
+      payload: err.payload || {}
+    }
   })
-  api.add(methods)
+}
+
+
+/**
+ * Return the content of the body and the query parameters
+ * as a unified object.
+ *
+ * @param {Object} params
+ * @param {ServerRequest} req
+ * @param {Number} limit (default 100kb)
+ * @return {Promise}
+ * @api private
+ */
+
+function data (params, req, limit = 100000) {
+  return new Promise(resolve => {
+    const length = Number(req.headers['content-length'])
+    if (length && length > 0 && length <= limit) {
+      resolve(body(req).then(val => {
+        return {
+          ...params,
+          ...val
+        }
+      }))
+    } else {
+      resolve({
+        ...params
+      })
+    }
+  })
 }

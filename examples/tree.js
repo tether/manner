@@ -5,7 +5,7 @@
 const http = require('http')
 const service= require('..')
 const Readable = require('stream').Readable
-
+const fs = require('fs')
 
 
 
@@ -15,19 +15,22 @@ const Readable = require('stream').Readable
 
 const user = service({
   'get': {
-    '/': () => 'hello world',
-    '/foo': '/bar',
-    '/:name': (query) => {
-      return query
-    },
-    '/error': () => {
-      throw new Error('this is some error')
+    '/': {
+      service() {},
+      stories: {
+        success: {
+          data: {
+            name: 'hello'
+          },
+          status: 200,
+          payload: {
+            message: 'Hello world@'
+          }
+        }
+      }
     }
-  },
-  'post': (query, data) => {
-    return data
   }
-})
+}, true)
 
 http.createServer((req, res) => {
   user(req, res).pipe(res)

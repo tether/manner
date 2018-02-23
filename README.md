@@ -5,7 +5,7 @@
 [![Downloads](https://img.shields.io/npm/dm/manner.svg)](http://npm-stat.com/charts.html?package=manner)
 [![guidelines](https://tether.github.io/contribution-guide/badge-guidelines.svg)](https://github.com/tether/contribution-guide)
 
-Quickly create HTTP service from an object. Manner is framework agnostic and can be plugged to any HTTP server.
+Quickly create HTTP services from an object. Manner is framework agnostic and can be plugged to any HTTP server.
 
   * **know the response type**: Return buffers, streams, promises, objects or any type of primitives. Manner knows your data type and send its content as fast as possible down the HTTP response.
   * **chunk the response content**: Response are encoded using the chunk transfer protocol. Manner is memory efficient and can manage a large amount of concurrent request.

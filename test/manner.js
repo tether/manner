@@ -1,14 +1,11 @@
 /**
- * Test dependencies.
+ * Test dependencie(s)
  */
 
 const test = require('tape')
-const fs = require('fs')
 const service = require('..')
-const concat = require('concat-stream')
-const Readable = require('stream').Readable
-const Writable = require('stream').Writable
-const server = require('server-test')
+const http = require('server-test')
+
 
 
 test('should be a high order function', assert => {
@@ -17,493 +14,250 @@ test('should be a high order function', assert => {
   assert.equal(typeof api, 'function')
 })
 
-
-test('should create HTTP method', assert => {
+test('should call function as a service', assert => {
   assert.plan(1)
   const api = service({
     get() {
       return 'hello world'
     }
   })
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => {
-      assert.equal(data.toString(), 'hello world')
-    }))
-    input.pipe(res)
-  }, null, true)
+  api.get('/').then(val => assert.equal(val, 'hello world'))
 })
 
 
-test('should create multiple HTTP methods', assert => {
-  assert.plan(2)
+test('should call service a function service ', assert => {
+  assert.plan(1)
   const api = service({
     get: {
-      '/': () => 'hello world',
-      '/foo': () => 'hello foo'
+      '/': () => 'hello world'
     }
+
   })
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => {
-      assert.equal(data.toString(), 'hello world')
-    }))
-    input.pipe(res)
-  }, null, true)
-  server((req, res) => {
-    req.url = '/foo'
-    const input = api(req, res)
-    input.pipe(concat(data => {
-      assert.equal(data.toString(), 'hello foo')
-    }))
-    input.pipe(res)
-  }, null, true)
+  api.get('/').then(val => assert.equal(val, 'hello world'))
 })
 
 
-test('should send 501 if method is not implementd', assert => {
-  assert.plan(2)
-  const api = service({
-    post: () => 'hello world!'
-  })
-  server((req, res) => {
-    api(req, res).on('error', () => {
-      assert.equal(res.statusCode, 501)
-      assert.equal(res.statusMessage , 'Not Implemented')
-    }).pipe(res)
-  })
-})
-
-
-
-test('should not have to return data', assert => {
+test('should call service from a service object', assert => {
   assert.plan(1)
   const api = service({
-    get: () => {
-      assert.ok('service executed')
-    }
-  })
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, null, true)
-})
-
-
-test('should chunk object returned by defined method', assert => {
-  assert.plan(1)
-  const api = service({
-    get: () => ({
-      name: 'hello'
-    })
-  })
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => {
-      assert.deepEqual(JSON.parse(data), {
-        name: 'hello'
-      })
-    }))
-    input.pipe(res)
-  }, null, true)
-})
-
-test('should chunk streams returned by defined method', assert => {
-  assert.plan(1)
-  const api = service({
-    get: () => fs.createReadStream(__dirname + '/manner.txt')
-  })
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => assert.equal(data.toString(), 'hello world\n')))
-    input.pipe(res)
-  }, null, true)
-})
-
-test('should chunk promise returned by defined method', assert => {
-  assert.plan(1)
-  const api = service({
-    get: () => new Promise(resolve => resolve('hello'))
-  })
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => assert.equal(data.toString(), 'hello')))
-    input.pipe(res)
-  }, null, true)
-})
-
-
-test('should pass query parameters to value function', assert => {
-  assert.plan(1)
-  const api = service({
-    get: (params) =>  params.first + ' ' + params.last
-  })
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => {
-      assert.equal(data.toString(), 'john doe')
-    }))
-    input.pipe(res)
-  }, {
-    qs: {
-      first: 'john',
-      last: 'doe'
-    }
-  }, true)
-})
-
-
-test('should pass request and response', assert => {
-  assert.plan(2)
-  server((req, res) => {
-    service({
-      'get': (params, data, request, response) => {
-        assert.equal(request, req)
-        assert.equal(response, res)
-      }
-    })(req, res).pipe(res)
-  }, {}, true)
-})
-
-
-test('should pass empty query object to value function when request does not have any query parameters', assert => {
-  assert.plan(2)
-  const api = service({
-    get: (params) => {
-      assert.equal(typeof params , 'object')
-      assert.equal(params != null, true)
-    }
-  })
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, null, true)
-})
-
-test('get accept dynamic routes', assert => {
-  assert.plan(1)
-  const request = {
-    qs: {
-      label: 'hello'
-    }
-  }
-  const api = service({
-    'get': {
-      '/:name': (params) => {
-        assert.deepEqual(params, {
-          label: 'hello',
-          name: 'foo'
-        })
+    get: {
+      '/': {
+        service() {
+          return 'hello world'
+        }
       }
     }
   })
-  server((req, res) => {
-    req.url = '/foo' + req.url.substring(1)
-    api(req, res).pipe(res)
-  }, request, true)
+  api.get('/').then(val => assert.equal(val, 'hello world'))
 })
 
-test('get root route if dynamic path have been defined', assert => {
-  assert.plan(1)
-  const request = {
-    qs: {
-      label: 'hello'
-    }
-  }
+
+test('should define multiple services', assert => {
+  assert.plan(3)
   const api = service({
-    'get': {
-      '/': () => {
-        assert.ok('path executed')
+    get: {
+      '/': {
+        service() {
+          return 'get hello world'
+        }
       },
-      '/:name': (params) => {
-        assert.fail('should not be called')
-      }
-    }
-  })
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, request, true)
-})
-
-test('should mixin query parameters with dynamic route params', assert => {
-  assert.plan(2)
-  const api = service({
-    get: {
-      '/:first': (query) => {
-        assert.equal(query.first, 'olivier')
-        assert.equal(query.last, 'doe')
-      }
-    }
-  })
-  server((req, res) => {
-    req.url = '/olivier' + req.url.substring(1)
-    api(req, res).pipe(res)
-  }, {
-    qs: {
-      first: 'john',
-      last: 'doe'
-    }
-  }, true)
-
-})
-
-
-test('should decode data passed in the body of a request and pass it to the appropriate value function', assert => {
-  assert.plan(2)
-  const message = {
-    foo: 'bar'
-  }
-  const api = service({
-    'post': (params, data) => {
-      assert.deepEqual(params, {
-        label: 'hello'
-      })
-      assert.deepEqual(data, message)
-    }
-  })
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, {
-    method: 'POST',
-    qs: {
-      label: 'hello'
+      '/john': () => 'get john'
     },
-    form: message
-  }, true)
+    post: () => 'post hello world'
+  })
+  api.get('/').then(val => assert.equal(val, 'get hello world'))
+  api.get('/john').then(val => assert.equal(val, 'get john'))
+  api.post('/').then(val => assert.equal(val, 'post hello world'))
 })
 
-// // test('should pass default multi part form data', assert => {
-// //   assert.plan(2)
-// //   const api = service({
-// //     'post': (params, data) => {
-// //       assert.deepEqual(data, {})
-// //     }
-// //   })
-// //   server((req, res) => {
-// //     api(req, res).pipe(res)
-// //   }, {
-// //     method: 'POST',
-// //   }, true)
-// // })
-//
-//
-test('should mixin request query object with service query', assert => {
-  assert.plan(2)
+
+test('should accept custom routes', assert => {
+  assert.plan(1)
   const api = service({
-    get(query) {
-      assert.equal(query.name, 'olivier')
-      assert.equal(query.age, 30)
+    get: {
+      '/:name': {
+        service(data) {
+          return 'hello ' + data.name
+        }
+      }
     }
   })
-  server((req, res) => {
-    req.query = {
-      age: 30
-    }
-    api(req, res).pipe(res)
-  }, {
-    qs: {
-      name: 'olivier'
-    }
-  }, true)
+  api.get('/john').then(val => assert.equal(val, 'hello john'))
 })
 
-test('should accept relative path')
 
-
-test('should define schema for query parameters', assert => {
+test('should accept aliases', assert => {
   assert.plan(1)
-  const schema = {
+  const api = service({
     get: {
-      '/': {
-        query: {
-          name: {
-            transform(value) {
-              return 'hello '+ value
-            }
-          }
+      '/foo' : '/world',
+      '/:name': {
+        service(data) {
+          return 'hello ' + data.name
         }
       }
     }
-  }
-  const api = service({
-    get(query) {
-      assert.equal(query.name, 'hello olivier')
-    }
-  }, schema)
-
-
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, {
-    qs: {
-      name: 'olivier'
-    }
-  }, true)
+  })
+  api.get('/foo').then(val => assert.equal(val, 'hello world'))
 })
 
 
-test('should define schema for request body data', assert => {
+test('should reject undefined aliases', assert => {
   assert.plan(1)
-  const schema = {
+  const api = service({
     get: {
+      '/foo' : '/world',
       '/': {
-        body: {
-          name: {
-            transform(value) {
-              return 'hello '+ value
-            }
-          }
+        service(data) {
+          return 'hello ' + data.name
         }
       }
     }
-  }
-  const api = service({
-    get(query, data) {
-      assert.equal(data.name, 'hello olivier')
-    }
-  }, schema)
+  })
 
-
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, {
-    form: {
-      name: 'olivier'
-    }
-  }, true)
+  api.get('/foo').then(null, err => {
+    assert.equal(err.message, 'service /foo not implemented')
+  })
 })
 
-test('should return error if field defined by schema is missing', assert => {
-  assert.plan(1)
-  const schema = {
+
+test('should automatically generate options', assert => {
+  assert.plan(2)
+  const api = service({
     get: {
       '/': {
-        body: {
+        service() {
+          return 'hello world'
+        }
+      }
+    }
+  })
+  api.options('/').then(val => {
+    assert.equal(typeof val, 'object')
+    assert.deepEqual(val['Access-Control-Allow-Methods'], 'GET, OPTIONS')
+  })
+})
+
+
+test('should apply and resolve schema', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        data: {
+          name: {
+            default: 'john'
+          }
+        },
+        service(data) {
+          return 'hello ' + data.name
+        }
+      }
+    }
+  })
+  api.get('/').then(val => assert.equal(val, 'hello john'))
+})
+
+test('should apply and reject schema', assert => {
+  assert.plan(1)
+  const api = service({
+    get: {
+      '/': {
+        data: {
           name: {
             required: true
           }
+        },
+        service(data) {
+          return 'hello ' + data.name
         }
       }
     }
-  }
-  const api = service({
-    get(query, data) {
-
-    }
-  }, schema)
-
-
-  server((req, res) => {
-    const stream = api(req, res)
-    stream.on('end', () => {
-      // @note we should test the payload as well
-      assert.equal(res.statusCode, 400)
-    })
-    stream.pipe(res)
-  }, {
-    form: {
-      foo: 'bar'
-    }
-  }, true)
-})
-
-test('should apply one middleware', assert => {
-  assert.plan(1)
-  const schema = {
-    get: {
-      '/': {
-        middleware: [
-          (query, body, next) => next({name: 'bob'})
-        ]
-      }
-    }
-  }
-  const api = service({
-    get(query) {
-      assert.equal(query.name, 'bob')
-    }
-  }, schema)
-
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, null, true)
-})
-
-test('should chain middlewares', assert => {
-  assert.plan(1)
-  const schema = {
-    get: {
-      '/': {
-        middleware: [
-          (query, body, next) => next({name: 'bob'}),
-          (query, body, next) => next({label: 'hello ' + query.name})
-        ]
-      }
-    }
-  }
-  const api = service({
-    get(query) {
-      assert.equal(query.label, 'hello bob')
-    }
-  }, schema)
-
-  server((req, res) => {
-    api(req, res).pipe(res)
-  }, null, true)
+  })
+  api.get('/').then(null, reason => {
+    assert.equal(reason.message, 'field name is missing')
+  })
 })
 
 
-
-test('should chain middlewares and return result', assert => {
+test('should call a service and pass manner core as its scope', assert => {
   assert.plan(1)
-  const schema = {
-    get: {
-      '/': {
-        middleware: [
-          (query, body, next) => next({name: 'bob'}),
-          (query, body, next) => next({label: 'hello ' + query.name})
-        ]
-      }
-    }
-  }
   const api = service({
-    get(query) {
-      return query
+    get: {
+      '/': function () {
+        return this.get('/hello')
+      },
+      '/hello': () => 'hello world'
     }
-  }, schema)
-
-  server((req, res) => {
-    const input = api(req, res)
-    input.pipe(concat(data => {
-      assert.deepEqual(JSON.parse(data), {
-        label: 'hello bob'
-      })
-    }))
-    input.pipe(res)
-  }, null, true)
+  })
+  api.get('/').then(val => assert.equal(val, 'hello world'))
 })
 
 
-test('should set content type from schema')
-/*assert => {
-  assert.plan(1)
-  const schema = {
+test('should support nesting of services', assert => {
+  assert.plan(5)
+  const api = service({
     get: {
       '/': {
-        type: 'csv'
+        service : () => 'hello world',
+        routes: {
+          '/john': {
+            service: () => 'hello john',
+            routes: {
+              '/doe': {
+                service: () => 'hello john doe'
+              }
+            }
+          },
+          '/jane': {
+            service: () => 'hello jane',
+            routes: {
+              '/doe': {
+                service: () => 'hello jane doe'
+              }
+            }
+          }
+        }
       }
     }
-  }
+  })
+  api.get('/').then(val => assert.equal(val, 'hello world'))
+  api.get('/john').then(val => assert.equal(val, 'hello john'))
+  api.get('/john/doe').then(val => assert.equal(val, 'hello john doe'))
+  api.get('/jane').then(val => assert.equal(val, 'hello jane'))
+  api.get('/jane/doe').then(val => assert.equal(val, 'hello jane doe'))
+})
+
+test('should generate options for nested services', assert => {
+  assert.plan(5)
   const api = service({
-    get(query, data) {
-
+    get: {
+      '/': {
+        service : () => 'hello world',
+        routes: {
+          '/john': {
+            service: () => 'hello john',
+            routes: {
+              '/doe': {
+                service: () => 'hello john doe'
+              }
+            }
+          },
+          '/jane': {
+            service: () => 'hello jane',
+            routes: {
+              '/doe': {
+                service: () => 'hello jane doe'
+              }
+            }
+          }
+        }
+      }
     }
-  }, schema)
-
-
-  server((req, res) => {
-    const stream = api(req, res)
-    stream.on('end', () => {
-      assert.equal(res.getHeader('Content-Type'), 'text/csv; charset=utf-8')
-    })
-    stream.pipe(res)
-  }, null, true)
-}*/
+  })
+  api.options('/').then(val => assert.equal(typeof val, 'object'))
+  api.options('/john').then(val => assert.equal(typeof val, 'object'))
+  api.options('/john/doe').then(val => assert.equal(typeof val, 'object'))
+  api.options('/jane').then(val => assert.equal(typeof val, 'object'))
+  api.options('/jane/doe').then(val => assert.equal(typeof val, 'object'))
+})
