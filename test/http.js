@@ -688,6 +688,20 @@ test('should stub service and go through  user stories define as object', assert
 
 
 
+// test('should stream services returning array', assert => {
+//   assert.plan(2)
+//   const api = service({
+//     get() {
+//       return ['hello world']
+//     }
+//   })
+//   server(api, (data, res) => {
+//     assert.equal(res.statusCode, 200)
+//     assert.deepEqual(JSON.parse(data), ['hello world'])
+//   })
+// })
+
+
 /**
  * Create HTTP server.
  *
