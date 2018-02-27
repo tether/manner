@@ -22,6 +22,9 @@ const user = service({
     '/error': () => {
       throw new Error('this is some error')
     },
+    '/array': () => {
+      return ['hello world']
+    },
     '/html': () => fs.createReadStream(__dirname + '/sample.html')
   },
   'post': (query, data) => {
