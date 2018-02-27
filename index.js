@@ -84,7 +84,18 @@ function stub (core, services, req, res) {
     const stories = service.stories
     return morph(
       data(query(url.query), req, service.limit)
-        .then(val => match(val, stories))
+        .then(val => {
+          if (method !== 'options') return match(val, stories)
+          else {
+            res.writeHead(200, {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': `*`,
+              'Access-Control-Allow-Headers': '*'
+            })
+            res.end()
+            return val
+          }
+        })
         .then(story => {
           const payload = story.payload
           res.statusCode = story.status || 200
