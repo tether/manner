@@ -158,7 +158,7 @@ function mime (value) {
   if (typeof value == 'object') {
     let type = 'application/json; charset=utf-8'
     if (value instanceof stream.Stream) {
-      type = lookup(extname(value.path)) || type
+      type = lookup(extname(value.path || '')) || type
     }
     return type
   }
